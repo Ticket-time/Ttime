@@ -1,0 +1,24 @@
+{
+  "name": "ttime",
+  "version": "1.0.0",
+  "description": "시스템종합설계 프로젝트 - 블록체인을 활용한 티켓 거래 서비스",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "start": "nodemon server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "connect": "^3.7.0",
+    "express": "^4.18.2",
+    "nodemon": "^2.0.22",
+    "serve-static": "^1.15.0",
+    "truffle-contract": "^4.0.31",
+    "web3": "^0.20.0"
+  }
+}
