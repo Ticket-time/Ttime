@@ -1,5 +1,5 @@
-var mysql = require('mysql');
 require('dotenv').config()
+var mysql = require('mysql');
 console.log(process.env)
 var db = mysql.createConnection({
     host     : process.env.RDS_HOSTNAME,
