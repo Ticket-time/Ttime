@@ -5,72 +5,16 @@ const db = require('./db');
 // const smtpTransport = require('./email.js');
 // const jwt = require('jsonwebtoken');
 // const { validationResult, body } = require('express-validator')
+const bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
-app.use(express.urlencoded({extended: false}))
+//app.use(express.urlencoded({extended: false}))
 app.listen(3000);
 
 db.query(`USE ttime;`);
 
-app.post("/register", async (req, res) => {
-    let data = new Object();
-    data.success = false;
-    data.message = "";
-
-    console.log(data);
-
-    const { id, password, email } = req.body;
-    console.log(req.body);
-
-    // input data validation 
-    if (!id || !password || !email) {
-        return res.send(data = {success: false, message: "잘못된 입력"});
-    //  else if (body("email").isEmail()) {
-    //     throw Error("Invalid email entered");
-    } else if (password.length < 8) {
-        return res.send(data = {success: false, message: "비밀번호는 8자리 이상이어야 합니다"});
-    } 
-
-
-    //id 중복 확인
-    db.query(
-        "select id from user where id = ?",
-        [id],
-        (err, rows) => {
-            if(rows.length == 0) {
-                console.log("중복 id 없음");
-                const query = db.query(
-                    "select email from user where email = ?",
-                    [email],
-                    (err, rows) => {
-                        if (rows.length == 0){
-                            console.log("중복 이메일 없음");
-                            db.query(
-                                "insert into user(id, email, password) values(?, ?, ?)",
-                                [id, email, password],
-                                (err, rows) => {
-                                    if (err) {
-                                        console.log(err);
-                                        throw err;
-                                    }
-                                    else res.json(data = {success: true, message: '회원가입 완료'});
-                                }
-                            )
-                        }
-                        else {
-                            res.json(data = {success: false, message: "이미 가입된 이메일입니다."})
-                        }
-                    }
-
-
-                    
-                )
-            }
-            else{
-                res.json({message: '중복 id 입니다.'});
-            }
-    });
-        
-});    
+   
 
 // // email 인증
 // app.post("/mail_verify", async(req, res)=> {
@@ -125,3 +69,7 @@ app.post("/register", async (req, res) => {
 //    return res.send('success email confirmation');
 // });
 
+
+
+var userRouter = require('./routes/userRouter');
+app.use('/user', userRouter);
