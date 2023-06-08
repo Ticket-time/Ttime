@@ -12,7 +12,10 @@ app.use(bodyParser.json());
 //app.use(express.urlencoded({extended: false}))
 app.listen(3000);
 
-db.query(`USE ttime;`);
+
+var userRouter = require('./routes/userRouter');
+
+app.use('/users', userRouter);
 
    
 
@@ -58,18 +61,4 @@ db.query(`USE ttime;`);
 // });
 
 
-// app.get("/user/comfirmation/:token", async(req, res) => {
-//     try{
-//         const emailToken = jwt.verify(req.params.token, JWT_SECRET_KEY_EMAIL);
-//         console.log(emailToken);
-//         // db update 구문 
-//     } catch (e) {
-//         res.send('error');
-//     }
-//    return res.send('success email confirmation');
-// });
 
-
-
-var userRouter = require('./routes/userRouter');
-app.use('/user', userRouter);

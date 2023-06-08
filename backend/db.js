@@ -16,4 +16,5 @@ db.connect(function(err) {
     console.log('connected to DB');
 })
 
+db.query(`USE ttime;`);
 module.exports = db;
