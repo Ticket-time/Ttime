@@ -1,7 +1,6 @@
 require("dotenv").config();
 const express = require("express");
 const app = express();
-const db = require('./db');
 // const smtpTransport = require('./email.js');
 // const jwt = require('jsonwebtoken');
 // const { validationResult, body } = require('express-validator')

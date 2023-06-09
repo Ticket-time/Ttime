@@ -13,15 +13,12 @@ require('dotenv').config("../../.env");
 exports.verifyToken = (req, res, next) => {
     try {
         // 해독된 페이로드 
+        ///req.user.jwt = jwt;
         req.decoded = jwt.verify(req.headers.authorization, process.env.JWT_SECRET_KEY);
+        //console.log(req.decoded);
         console.log(req.decoded);
-        // next넘기는 걸로 나중에 수정 
-        //return next();
-        
-        return res.status(200).json({
-            code: 200,
-            message: "검증 완료"
-        })
+        return next();
+
     } catch (error) {
         if (error.name === 'TokenExpireError') {
             return res.status(419).json({
@@ -36,7 +33,7 @@ exports.verifyToken = (req, res, next) => {
     }
 }
 
-exports.issueToken = async(req, res) => {
+exports.issueToken = (req, res) => {
     try{
         const id = req.body.id;
         const token = jwt.sign({ id }
