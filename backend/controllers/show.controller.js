@@ -1,11 +1,11 @@
 require("dotenv").config();
 const express = require("express");
 const app = express();
-const db = require('../../backend/db');
+const db = require('./db');
 const bodyParser = require("body-parser");
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 
 
 exports.showAll = async(req, res) => {
@@ -26,3 +26,23 @@ exports.showAll = async(req, res) => {
         }
     );
 }
+
+// 응모 정보를 db에 저장 
+exports.apply = async(req, res) => {
+
+    const showid = req.body.showid;
+    const userid = req.decoded.id;  // jwt 인증한 user 
+
+    //db에 추가
+    db.query("insert into apply(showid, userid) values(?, ?)", [showid, userid],
+        (err, rows) => {
+            if (err) {  // 잘못된 정보 입력 or db 문제 
+                console.log(err);
+                return res.send({success: false, message: "응모 실패"});
+            }
+
+            console.log(`응모 완료: 공연 ${showid}, 유저 ${userid}`);
+            return res.send({success: true, message: "응모 완료"});
+        }
+    )
+};
