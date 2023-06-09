@@ -1,0 +1,41 @@
+create table shows(
+    showid int auto_increment,
+    showname varchar(100) not null,
+    showdate varchar(30) not null,
+    showtime varchar(20) not null,
+    place varchar(100) not null,
+    ticketPrice int,
+    imagePath varchar(255) not null,
+
+    constraint show_pk primary key(showid)
+);
+
+insert into shows values (
+null,
+'2023 (G)I-DLE WORLD TOUR ［I am FREE-TY］ IN SEOUL',
+'20230617, 20230608',
+'18:00',
+'잠실실내체육관',
+154000,
+'/home/ubuntu/img/23007053_p.gif'
+)
+
+insert into shows values (
+null,
+'SEVENTEEN TOUR ‘FOLLOW’ TO SEOUL',
+'20230721, 20230722',
+'17:00',
+'bluesquare masterguard Hall',
+154000,
+'/home/ubuntu/img/23007165_p.gif'
+)
+
+insert into shows values (
+null,
+'2023 크러쉬 팬미팅 〈ZZINBOMBTING〉',
+'20230603',
+'17:00',
+'고척스카이돔',
+30000,
+'/home/ubuntu/img/23006449_p.gif'
+)

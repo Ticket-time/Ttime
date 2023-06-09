@@ -1,0 +1,9 @@
+create table user(
+   id varchar(30),
+   email varchar(30) unique,
+   password varchar(30) not null,
+   confirmEmail bool default false,
+   wallet varchar(50),
+  
+  constraint user_pk primary key(id)
+);
