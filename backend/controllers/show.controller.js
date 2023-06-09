@@ -9,8 +9,17 @@ app.use(express.json());
 
 
 exports.showAll = async(req, res) => {
-    // db에서 전체 정보를 불러온다
-    db.query("select * from shows",
+    
+    let sql = "select * from shows"
+    let keyword = req.body.keyword;
+    if (!(keyword === undefined)) {
+        sql = "select * from shows where showname like ";
+        keyword = '\'%' + keyword + '%\'';
+        sql = sql + keyword;
+    }
+    
+    //db에서 전체 정보를 불러온다
+    db.query(sql, [req.body.keyword],
         (err, rows) => {
             if (err) {
                 console.log(err);
@@ -26,6 +35,8 @@ exports.showAll = async(req, res) => {
         }
     );
 }
+
+
 
 // 응모 정보를 db에 저장 
 exports.apply = async(req, res) => {
