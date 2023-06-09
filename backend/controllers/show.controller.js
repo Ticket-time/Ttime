@@ -7,6 +7,7 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+
 exports.showAll = async(req, res) => {
     // db에서 전체 정보를 불러온다
     db.query("select * from shows",
@@ -21,7 +22,7 @@ exports.showAll = async(req, res) => {
                 return res.send({success : false, message: "공연정보 없음"});
             }
 
-            console.log(rows);
+            return res.send({success: true, data: rows});
         }
     );
 }
