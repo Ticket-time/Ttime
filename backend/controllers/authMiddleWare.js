@@ -15,7 +15,9 @@ exports.verifyToken = (req, res, next) => {
         // 해독된 페이로드 
         req.decoded = jwt.verify(req.headers.authorization, process.env.JWT_SECRET_KEY);
         console.log(req.decoded);
+        // next넘기는 걸로 나중에 수정 
         //return next();
+        
         return res.status(200).json({
             code: 200,
             message: "검증 완료"
@@ -41,7 +43,7 @@ exports.issueToken = async(req, res) => {
             ,process.env.JWT_SECRET_KEY
             ,{expiresIn: '1m', issuer: '문정만크크크'});
             console.log("토큰 발급 완료");
-        return res.send({code: 200, message: '토큰 발급 완료', token});
+        return res.send({success: true, code: 200, message: '토큰 발급 완료', token});
 
     } catch (error) {
         console.error(error);

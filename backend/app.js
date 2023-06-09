@@ -14,8 +14,9 @@ app.listen(3000);
 
 
 var userRouter = require('./routes/userRouter');
-
+var showRouter = require('./routes/showRouter');
 app.use('/users', userRouter);
+app.use('/shows', showRouter); // 전체 공연 
 
    
 
