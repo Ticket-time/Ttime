@@ -8,6 +8,23 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 
+function checkDupapply(userid, showid)   {
+    let sql = "select * from apply where userid = ? and showid = ?"
+    db.query(sql, [userid, showid],
+        (err, rows) => {
+            if (err) {
+                console.log(err);
+                throw err;
+            }
+
+            if (rows.length == 0) { return false;}
+            else return true;
+        }
+        
+    )
+}
+
+
 exports.showAll = async(req, res) => {
     let sql = "select * from shows"
     let keyword = req.body.keyword;
@@ -69,27 +86,29 @@ exports.showDetails = async(req, res) => {
                 return res.send({success: false, message: "DB 에러"});
             }
             
-
-            console.log(`rows.applystart: ${rows.applystart}`);
-
             let _applystart = (new Date(rows[0].applystart)).valueOf();
             console.log(`_applystart: ${_applystart}`);
             
-            
+            let _applyend = (new Date(rows[0].applyend)).valueOf();
+            console.log(`_applyend: ${_applyend}`);
+
+
             if (sysdate < _applystart) {
                 return res.send({success: true, code:111, message: "응모 기간 전"});
             }
-            // else if (sysdate >= _applystart && sysdate < _applyend ){
-                
-            //     // 응모 기간 중 유저가 이미 응모를 했으면 
-            //     // if(applyInfo.length > 0)
-            //     //     return res.send({success: true, code: 222, message: "이미 응모함"});
-            //     // else     // 응모 기간 중 유저가 아직 응모를 안했으면 
-            //     //     return res.send({success: true, code: 333, message: "응모 가능"});
-            // }
-            else {
+
+            if (sysdate > _applyend) {
                 return res.send({success: true, code: 444, message: "응모 기간 종료"})
+            }
+             
+            let result = checkDupapply(userid, showid);
+            if (result) {
+                return res.send({success: true, code: 222, message: "이미 응모함"});
+            }
+            else {
+                return res.send({success: true, code: 333, message: "응모 가능"});
             }
         }
     )
 }
+
