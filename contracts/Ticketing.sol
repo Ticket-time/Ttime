@@ -10,7 +10,7 @@ contract Ticketing {
     mapping(uint => Show) public shows;
     mapping (address => User) public users; // 유저 식별
     mapping(address => Ticket[]) public myTicket; // 소비자용
-    mapping(address => Show[]) public myEvent; // 공연 관계자용
+    mapping(address => Show[]) public myShow; // 공연 관계자용
     mapping(uint => Ticket) sellingQueue; // 양도 티켓 매물 정보
 
     constructor() payable {
