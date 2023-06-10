@@ -7,24 +7,6 @@ const mysql = require("mysql");
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-
-function checkDupapply(userid, showid)   {
-    let sql = "select * from apply where userid = ? and showid = ?"
-    db.query(sql, [userid, showid],
-        (err, rows) => {
-            if (err) {
-                console.log(err);
-                throw err;
-            }
-
-            if (rows.length == 0) { return false;}
-            else return true;
-        }
-        
-    )
-}
-
-
 exports.showAll = async(req, res) => {
     let sql = "select * from shows"
     let keyword = req.body.keyword;
@@ -103,13 +85,20 @@ exports.showDetails = async(req, res) => {
                 return res.send({success: true, code: 444, message: "응모 기간 종료"})
             }
              
-            let result = checkDupapply(userid, showid);
-            if (result) {
-                return res.send({success: true, code: 222, message: "이미 응모함"});
-            }
-            else {
-                return res.send({success: true, code: 333, message: "응모 가능"});
-            }
+            let sql = "select * from apply where userid = ? and showid = ?";
+            db.query(sql, [userid, showid],
+                (err, rows) => {
+                    if (err) {
+                        console.log(err);
+                        throw err;
+                    }
+                    
+                    if (rows.length !== 0) 
+                        return res.send({success: true, code: 222, message: "이미 응모함"});
+                    else 
+                        return res.send({success: true, code: 333, message: "응모 가능"});
+                }            
+            )
         }
     )
 }
