@@ -100,7 +100,7 @@ exports.login = async (req, res, next) => {
 exports.applyList = async(req, res)=>{
     const userid = req.decoded.id; 
 
-    db.query("select * from apply where userid = ?", [userid],
+    db.query("select s.showid, s.showname, s.showdate from shows s, apply a where s.showid = a.showid and a.userid = ?;", [userid],
         (err, rows) => {
             if (err) {
                 console.log(err);
@@ -116,8 +116,6 @@ exports.applyList = async(req, res)=>{
                 console.log(`user: ${userid} 응모 내역 전송`);
                 return res.send({success: true, message: "응모 내역 있음", rows: rows});
             }
-
         }
-    
     )
 }
