@@ -2,12 +2,8 @@ const express = require('express');
 const app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-
 const jwt = require('jsonwebtoken');
 require('dotenv').config("../../.env");
-//const path = require('path');
-//require('dotenv').config({path: path.resolve('../../.env')});
-
 
 // 토큰 검증
 exports.verifyToken = (req, res, next) => {
@@ -17,10 +13,12 @@ exports.verifyToken = (req, res, next) => {
         req.decoded = jwt.verify(req.headers.authorization, process.env.JWT_SECRET_KEY);
         //console.log(req.decoded);
         console.log(req.decoded);
+        console.log("토큰 검증 성공");
         return next();
 
     } catch (error) {
-        if (error.name === 'TokenExpireError') {
+        console.log(error.name);
+        if (error.name === 'TokenExpiredError') {
             return res.status(419).json({
                 code: 419,
                 message: '토큰이 만료되었습니다.'
