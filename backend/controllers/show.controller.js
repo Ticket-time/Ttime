@@ -7,6 +7,7 @@ const mysql = require("mysql");
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
+
 exports.showAll = async(req, res) => {
     let sql = "select * from shows"
     let keyword = req.body.keyword;
@@ -49,7 +50,7 @@ exports.apply = async(req, res) => {
             }
 
             console.log(`응모 완료: 공연 ${showid}, 유저 ${userid}`);
-            return res.send({success: true, message: "응모 완료"});
+            return res.send({success: true, code: 222, message: "응모 완료"});
         }
     )
 };
