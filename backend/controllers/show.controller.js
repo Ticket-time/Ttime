@@ -85,6 +85,8 @@ exports.showDetails = async(req, res) => {
                 console.log(err);
                 return res.send({success: false, message: "DB 에러"});
             }
+            console.log(rows[0]);
+            console.log(rows[0].applystart);
             
             let _applystart = (new Date(rows[0].applystart)).valueOf();
             console.log(`_applystart: ${_applystart}`);
