@@ -36,7 +36,7 @@ exports.issueToken = (req, res) => {
         const id = req.body.id;
         const token = jwt.sign({ id }
             ,process.env.JWT_SECRET_KEY
-            ,{expiresIn: '1m', issuer: '문정만크크크'});
+            ,{expiresIn: '2m', issuer: '문정만크크크'});
             console.log("토큰 발급 완료");
         return res.send({success: true, code: 200, message: '토큰 발급 완료', token});
 
