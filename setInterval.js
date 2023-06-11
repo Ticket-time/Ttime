@@ -16,7 +16,9 @@ function scheduleRandomFunc() {
     0,
     0
   );
-  const timeUntilMidnight = nextMidnight - now;
+
+  const timeUntilMidnight = nextMidnight.getTime() - now.getTime();
+  console.log("자정까지 시간(ms): " + timeUntilMidnight);
 
   setTimeout(() => {
     callRandomFunc(); // 자정에 호출될 함수를 호출합니다.
@@ -40,7 +42,3 @@ function callRandomFunc() {
     }
   });
 }
-
-// callRandomFunc();
-// scheduleRandomFunc();
-// 외부 스케쥴러나 corn 이용
