@@ -1,13 +1,5 @@
-// setInverval() 써서 매일 정각에 추첨할 공연이 있는지 체크
-// 공연 db에서 targetDate 받아오기 - applyend 받아오고, 하루 뒤로 설정(임의)
-// 애초에 db에서 applyend 모두 받아와서 추첨할 공연 체크
-// 있다면, apply 테이블 정보 가져와서, random() 돌리고
-// apply update
 require("dotenv").config();
-const express = require("express");
-const app = express();
 const db = require("./backend/controllers/db");
-const bodyParser = require("body-parser");
 const mysql = require("mysql");
 
 module.exports = {
@@ -20,6 +12,10 @@ module.exports = {
     const sql2s = mysql.format(sql2, showid);
 
     db.query(sql1s + sql2s, async (err, results) => {
+      if (err) {
+        console.log(err);
+        throw err;
+      }
       let sql1s_result = JSON.parse(JSON.stringify(results[0]));
       let sql2s_result = JSON.parse(JSON.stringify(results[1]));
 
@@ -76,12 +72,3 @@ module.exports = {
     });
   },
 };
-// const sql =
-//   "SELECT showid, applyend FROM shows WHERE DATE_ADD(applyend, INTERVAL 1 DAY) > CURDATE()";
-// db.query(sql, async (err, results) => {
-//   // console.log(results);
-//   if (results.length > 0) {
-//     // random()함수 실행
-//     random(1);
-//   }
-// });
