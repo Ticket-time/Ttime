@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const app = express();
+const setInterval = require("../setInterval.js");
 // const smtpTransport = require('./email.js');
 // const jwt = require('jsonwebtoken');
 // const { validationResult, body } = require('express-validator')
@@ -11,17 +12,15 @@ app.use(bodyParser.json());
 //app.use(express.urlencoded({extended: false}))
 app.listen(3000);
 
+var userRouter = require("./routes/userRouter");
+var showRouter = require("./routes/showRouter");
+app.use("/users", userRouter);
+app.use("/shows", showRouter); // 전체 공연
 
-var userRouter = require('./routes/userRouter');
-var showRouter = require('./routes/showRouter');
-app.use('/users', userRouter);
-app.use('/shows', showRouter); // 전체 공연 
-
-   
-
+setInterval.scheduleRandomFunc();
 // // email 인증
 // app.post("/mail_verify", async(req, res)=> {
-    
+
 //     let date = new Date();
 //     let id = req.body.id;
 //     let email = req.body.email;
@@ -31,7 +30,7 @@ app.use('/shows', showRouter); // 전체 공연
 //             "id": id,
 //             "created": date.toString()
 //         },
-//         process.env.JWT_SECRET_KEY_EMAIL, 
+//         process.env.JWT_SECRET_KEY_EMAIL,
 //         {
 //              expiresIn: process.env.JWT_EXPIRES_IN
 //         }
@@ -56,9 +55,4 @@ app.use('/shows', showRouter); // 전체 공연
 //         res.send('성공');
 //     });
 
-    
-
 // });
-
-
-
