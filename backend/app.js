@@ -1,7 +1,10 @@
 require("dotenv").config();
 const express = require("express");
 const app = express();
+const Web3 = require("web3");
+const port = 3000 || process.env.PORT;
 const setInterval = require("../setInterval.js");
+const truffle_connect = require("./connect.js");
 // const smtpTransport = require('./email.js');
 // const jwt = require('jsonwebtoken');
 // const { validationResult, body } = require('express-validator')
@@ -10,12 +13,22 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 //app.use(express.urlencoded({extended: false}))
-app.listen(3000);
 
 var userRouter = require("./routes/userRouter");
 var showRouter = require("./routes/showRouter");
 app.use("/users", userRouter);
 app.use("/shows", showRouter); // 전체 공연
+
+app.post("/issueTicket", (req, res) => {
+  console.log("**** GET /issueTicket ****");
+  let showId = parseInt(req.body.showId);
+  let owner = req.body.owner;
+  console.log(showId);
+  console.log(owner);
+  truffle_connect.issueTicket(showId, owner, function (result) {
+    res.send(result);
+  });
+});
 
 setInterval.scheduleRandomFunc();
 // // email 인증
@@ -56,3 +69,11 @@ setInterval.scheduleRandomFunc();
 //     });
 
 // });
+app.listen(port, () => {
+  // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
+  truffle_connect.web3 = new Web3(
+    new Web3.providers.HttpProvider("http://127.0.0.1:8545")
+  );
+
+  console.log("Express Listening at http://localhost:" + port);
+});
