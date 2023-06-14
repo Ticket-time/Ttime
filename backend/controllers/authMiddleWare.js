@@ -1,17 +1,16 @@
+require('dotenv').config("../../.env");
 const express = require('express');
 const app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 const jwt = require('jsonwebtoken');
-require('dotenv').config("../../.env");
+const getFunc = require('./getFunc');
 
 // 토큰 검증
 exports.verifyToken = (req, res, next) => {
     try {
-        // 해독된 페이로드 
-        ///req.user.jwt = jwt;
+        // 해독된 페이로드
         req.decoded = jwt.verify(req.headers.authorization, process.env.JWT_SECRET_KEY);
-        //console.log(req.decoded);
         console.log(req.decoded);
         console.log("토큰 검증 성공");
         return next();
@@ -31,15 +30,28 @@ exports.verifyToken = (req, res, next) => {
     }
 }
 
-exports.issueToken = (req, res) => {
+exports.issueToken = async (req, res) => {
     try{
+        let sql = "select wallet from user where id = ?"
+        let params = [req.body.id];
         const id = req.body.id;
-        const token = jwt.sign({ id }
+        console.log(id);
+        const token = await jwt.sign({ id }
             ,process.env.JWT_SECRET_KEY
             ,{expiresIn: '2m', issuer: '문정만크크크'});
             console.log("토큰 발급 완료");
-        return res.send({success: true, code: 200, message: '토큰 발급 완료', token});
 
+        let result;
+        getFunc.getRows(sql, [id], function(err, data){
+            if (err) {
+                console.log("Error: ", err);
+            }
+            else {
+                console.log("result from db is :", data);
+                return res.send({success: true, code: 200, message: '토큰 발급 완료', token, wallet: data[0].wallet});
+            }
+        });
+        
     } catch (error) {
         console.error(error);
         return res.status(500).json({
@@ -47,4 +59,7 @@ exports.issueToken = (req, res) => {
             message: '서버 에러'
         });
     }
+
+    
+
 };

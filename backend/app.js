@@ -7,13 +7,9 @@ const setInterval = require("../setInterval.js");
 const truffle_connect = require("./connect.js");
 
 // const smtpTransport = require('./email.js');
-// const jwt = require('jsonwebtoken');
-// const { validationResult, body } = require('express-validator')
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-
-//app.use(express.urlencoded({extended: false}))
 
 var userRouter = require("./routes/userRouter");
 var showRouter = require("./routes/showRouter");

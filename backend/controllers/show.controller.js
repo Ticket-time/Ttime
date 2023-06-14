@@ -4,7 +4,7 @@ const app = express();
 const db = require('./db');
 const bodyParser = require("body-parser");
 const mysql = require("mysql");
-const img = require('./image');
+const getFunc = require('./getFunc');
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());

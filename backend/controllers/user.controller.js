@@ -3,7 +3,8 @@ const express = require("express");
 const app = express();
 const db = require('./db');
 const bodyParser = require("body-parser");
-
+const Web3 = require("web3");
+var web3 = new Web3();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
