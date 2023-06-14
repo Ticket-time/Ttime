@@ -1,20 +1,11 @@
-const express = require("express");
-const app = express();
-const request = require("request");
-const port = 3000;
-app.listen(3000);
+var fs = require('fs');
 
-app.get('/image', function(req, res){
-    const options = {
-        url : "http://3.37.125.95/home/ubuntu/img/IMG_3385.jpg",
-        method: 'GET',
-        encoding: null
+function getImg(showid) {
+    // 서버 이미지 주소 디코딩 
+    let imgFile = fs.readFileSync(`./image/${showid}.gif`);
+    let encode = Buffer.from(imgFile).toString('base64');
+    console.log(encode);
 
-    };
+}
 
-    request(options, (err, response, body) => {
-        res.set('Content-Type', response.headers['content-type']);
-        res.send(body);
-    });
-
-});
+getImg(1);
