@@ -3,21 +3,16 @@ pragma solidity ^0.8.13;
 
 contract Ticketing {
     address payable owner; // 앱 관리자 
-    uint public showIndex = 1; // 공연 id
+    uint public showIndex = 1; // 공연 id 1부터 시작
+    uint public userIndex; 
     uint public sellingQueueIndex;
 
     mapping(uint => Show) public shows; // 전체 공연 목록
     mapping(address => Ticket[]) public myTicket; // 소비자용
     mapping(address => Show[]) public myShow; // 공연 관계자용
-    mapping(uint => Ticket) public sellingQueue; // 양도 티켓 매물 정보
 
     constructor() payable {
         owner = payable(msg.sender);
-        createShow(); // 1
-        createShow(); // 2
-        createShow(); // 3
-        createShow(); // 4
-        createShow(); // 5
     }
 
     struct Ticket {
@@ -27,17 +22,18 @@ contract Ticketing {
     }
 
     struct Show {
-        address payable owner; // 공연 관계자
-        //uint showid;
-        uint ticketIndex; // 티켓 개수 세는 용도
+        address payable owner; // 공연 주최측
+        uint ticketIndex;
         uint ticketPrice;
         mapping(uint => Ticket) tickets; // ticket 정보
+        mapping(uint => Ticket) sellingQueue; // 양도 티켓 큐
+        uint sellingQueueIndex;
     }
 
     event ISSUE_TICKET(uint _showId, uint _ticketId);
 
     /// @notice 송금 이벤트 
-    // event Transfer (address indexed buyer, uint value);
+    event TRANSFER (address indexed sender, uint value, address receiver);
 
     /// @notice 티켓 재판매 등록 이벤트
     event RESELL(address _owner, uint _showId, uint _ticketId);
@@ -45,27 +41,46 @@ contract Ticketing {
     /// @notice 티켓 구매 이벤트 
     event BUY_TICKET(address from, address to, uint _ticketPrice);
 
-    function createShow() public returns (bool sufficient){
+    function getTicketPrice (uint _showid) public view returns (uint ticketPrice){
+        return shows[_showid].ticketPrice;
+    }
+
+    /// @notice 송금
+    function transferETH (uint _ticketPrice, address payable receiver) public payable{
+        address sender = msg.sender;
+        receiver.transfer(_ticketPrice);
+        // receiver.transfer(msg.value);
+        emit TRANSFER(sender, _ticketPrice, receiver);
+    }
+
+    /// @notice 공연 생성
+    function createShow(uint _ticketPrice) public returns (bool sufficient){
         Show storage s = shows[showIndex];
+        // 공연 주최측 지갑 주소 받아오는 부분 추후 구현
+        s.owner = payable(msg.sender);
         s.ticketIndex = 0;
+        s.sellingQueueIndex = 0;
+        s.ticketPrice = _ticketPrice;
         showIndex++;
         return true;
     }
+
      /// @notice 티켓을 응모한 사람 중 당첨된 사람한테 발급
-    function issueTicket(uint _showId, address payable _owner) public payable{
+    function issueTicket(uint _showId, address payable _ticketOwner) public payable{
         Show storage s = shows[_showId];
         Ticket memory t = Ticket({
             showId: _showId,
             ticketId: s.ticketIndex,
-            owner: _owner
+            owner: _ticketOwner
         });
+        transferETH(msg.value, s.owner); // 결제 해야 발급
+        // transferETH(s.ticketPrice, s.owner);
 
         s.tickets[s.ticketIndex] = t;
-        myTicket[_owner].push(t);
+        myTicket[msg.sender].push(t);
 
         emit ISSUE_TICKET(_showId, s.ticketIndex);
         s.ticketIndex++;
-        // (s.owner).transfer(msg.value);
     }
 
     /// @notice 티켓 재판매 (or 양도) 등록 함수
@@ -79,25 +94,26 @@ contract Ticketing {
         );
 
         // 티켓을 셀링큐에 넣음 => 해당 공연에 대한 리셀 티켓 확인 가능
-        sellingQueue[sellingQueueIndex] = s.tickets[_ticketId];
-        sellingQueueIndex++;
+        s.sellingQueue[s.sellingQueueIndex] = s.tickets[_ticketId];
+        s.sellingQueueIndex++;
 
         emit RESELL(msg.sender, _showId, _ticketId);
     }
 
-    function buyTicket(uint _sellingQueueIndex) public payable {
-        Ticket memory t = sellingQueue[_sellingQueueIndex];
-        Show storage s = shows[t.showId];
+    /// @notice 셀링큐에서 티켓 양도 받음
+    function buyTicket(uint _showId, uint _sellingQueueIndex) public payable {
+        Show storage s = shows[_showId];
+        Ticket memory t = s.sellingQueue[_sellingQueueIndex];
+        
         address payable seller = t.owner;
 
         // require(msg.value == s.ticketPrice, "Not enough ETH!");
         // 티켓 기한 만료 확인 require();
 
         // 송금 
-        seller.transfer(msg.value);
-        emit BUY_TICKET(msg.sender, seller, s.ticketPrice);
-        delete sellingQueue[_sellingQueueIndex];
+        transferETH(msg.value, seller);
+        emit BUY_TICKET(msg.sender, seller, msg.value);
+        delete s.sellingQueue[_sellingQueueIndex];
     }
 
 }
-

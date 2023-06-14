@@ -1,23 +1,31 @@
 const contract = require("truffle-contract");
-
+const Web3 = require("web3");
+var web3 = new Web3();
 const ticketing_artifact = require("../build/contracts/Ticketing.json");
 var Ticketing = contract(ticketing_artifact);
 
 module.exports = {
-  createShow: function (callback) {
+  createShow: function (showOwner, ticketPriceEth, callback) {
     var self = this;
+    const ticketPriceWei = web3.toWei(ticketPriceEth, "ether");
+    console.log(ticketPriceWei);
+    Ticketing.setProvider(self.web3.currentProvider);
     var ticketing;
     Ticketing.deployed()
       .then(function (instance) {
         ticketing = instance;
-        return ticketing.createShow();
+        return ticketing.createShow(ticketPriceWei, { from: showOwner });
+      })
+      .then(function (value) {
+        console.log(value.receipt.status);
+        callback(value.receipt.status);
       })
       .catch(function (e) {
         console.log(e);
         callback("ERROR 404");
       });
   },
-  issueTicket: function (showId, owner, callback) {
+  issueTicket: function (showId, ticketOwner, callback) {
     var self = this;
     Ticketing.setProvider(self.web3.currentProvider);
     var ticketing;
@@ -25,8 +33,13 @@ module.exports = {
     Ticketing.deployed()
       .then(function (instance) {
         ticketing = instance;
-        return ticketing.issueTicket(showId, owner, {
-          from: owner,
+        return ticketing.getTicketPrice(showId);
+      })
+      .then(function (price) {
+        console.log(price);
+        return ticketing.issueTicket(showId, ticketOwner, {
+          from: ticketOwner,
+          value: price,
         });
       })
       .then(function (value) {
