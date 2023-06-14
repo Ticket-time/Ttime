@@ -13,5 +13,6 @@ router.post("/sendMail", email.sendEmail); // 이메일 보내기
 
 router.post("/checkPayable", check.checkPayable);
 router.post('/applyList', auth.verifyToken, userMiddleWare.applyList);
-//router.post('./getETH', userMiddleWare.)
+router.post('/getETH', userMiddleWare.getETH);
+
 module.exports = router;
