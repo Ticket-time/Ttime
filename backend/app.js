@@ -19,16 +19,42 @@ var showRouter = require("./routes/showRouter");
 app.use("/users", userRouter);
 app.use("/shows", showRouter); // 전체 공연
 
-app.post("/issueTicket", (req, res) => {
-  console.log("**** GET /issueTicket ****");
+app.post("/payTicket", (req, res) => {
+  console.log("**** POST /payTicket ****");
+  // showId, ticketOwner
   let showId = parseInt(req.body.showId);
-  let owner = req.body.owner;
+  let ticketOwner = req.body.ticketOwner;
+  // ticketPrice 어떻게 처리할 건지
+  // 1. showId로 db query 날려서 불러오기
+  // 2. show 구조체에 같이 저장은 했는데 dk 될듯
+  // let ticketPrice = parseFloat(req.body.ticketPrice);
+  // value값은 wei로 또 변환 해야함
   console.log(showId);
-  console.log(owner);
-  truffle_connect.issueTicket(showId, owner, function (result) {
+  console.log(ticketOwner);
+  truffle_connect.issueTicket(showId, ticketOwner, function (result) {
     res.send(result);
   });
 });
+
+app.post("/createShow", (req, res) => {
+  console.log("**** POST /createShow ****");
+  let showOwner = req.body.showOwner;
+  let ticketPrice = parseFloat(req.body.ticketPrice);
+  // let ticketPrice = req.body.ticketPrice;
+  truffle_connect.createShow(showOwner, ticketPrice, function (result) {
+    res.send(result);
+  });
+});
+// app.post("/issueTicket", (req, res) => {
+//   console.log("**** POST /issueTicket ****");
+//   let showId = parseInt(req.body.showId);
+//   let owner = req.body.owner;
+//   console.log(showId);
+//   console.log(owner);
+//   truffle_connect.issueTicket(showId, owner, function (result) {
+//     res.send(result);
+//   });
+// });
 
 setInterval.scheduleRandomFunc();
 // // email 인증
@@ -72,7 +98,7 @@ setInterval.scheduleRandomFunc();
 app.listen(port, () => {
   // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
   truffle_connect.web3 = new Web3(
-    new Web3.providers.HttpProvider("http://127.0.0.1:8545")
+    new Web3.providers.HttpProvider("http://127.0.0.1:7545")
   );
 
   console.log("Express Listening at http://localhost:" + port);
