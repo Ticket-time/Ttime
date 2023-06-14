@@ -3,8 +3,14 @@ const express = require("express");
 const app = express();
 const db = require('./db');
 const bodyParser = require("body-parser");
+
+
 const Web3 = require("web3");
 var web3 = new Web3();
+const Web3Utils = require('web3-utils');
+web3.setProvider(new web3.providers.HttpProvider("http://127.0.0.1:8545"));
+
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
@@ -70,8 +76,7 @@ exports.signup = async (req, res) => {
         }
     )
 };
-                            
-
+                        
 
 // 로그인 -> 토큰 발급
 exports.login = async (req, res, next) => {
@@ -119,4 +124,20 @@ exports.applyList = async(req, res)=>{
             }
         }
     )
+}
+
+exports.getETH = async(req, res) => {
+    // 지갑 주소 
+    const wallet = req.body.wallet;
+    console.log(wallet);
+    if (!wallet) {
+        return res.send({success: false, message: "잘못된 지갑 주소"});
+    }
+
+    let balance = (web3.eth.getBalance(wallet));
+    balance = Web3Utils.toBN(balance);
+    balance = Web3Utils.fromWei(balance, "ether");
+    console.log(typeof balance);
+    console.log(`${balance} ETH`);
+    return res.send({success: true, balance: balance})
 }
