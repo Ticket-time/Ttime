@@ -29,7 +29,7 @@ app.post("/payTicket", (req, res) => {
   console.log(showId);
   console.log(ticketOwner);
   truffle_connect.issueTicket(showId, ticketOwner, function (result) {
-    res.send(result);
+    res.send({ success: true, message: result });
   });
 });
 
@@ -39,19 +39,17 @@ app.post("/createShow", (req, res) => {
   let ticketPrice = parseFloat(req.body.ticketPrice);
   // let ticketPrice = req.body.ticketPrice;
   truffle_connect.createShow(showOwner, ticketPrice, function (result) {
+    res.send({ success: true, message: result });
+  });
+});
+
+app.post("/home", (req, res) => {
+  console.log("**** POST /home ****");
+  let userAddr = req.body.userAddr;
+  truffle_connect.getMyTicket(userAddr, function (result) {
     res.send(result);
   });
 });
-// app.post("/issueTicket", (req, res) => {
-//   console.log("**** POST /issueTicket ****");
-//   let showId = parseInt(req.body.showId);
-//   let owner = req.body.owner;
-//   console.log(showId);
-//   console.log(owner);
-//   truffle_connect.issueTicket(showId, owner, function (result) {
-//     res.send(result);
-//   });
-// });
 
 setInterval.scheduleRandomFunc();
 // // email 인증
@@ -95,7 +93,7 @@ setInterval.scheduleRandomFunc();
 app.listen(port, () => {
   // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
   truffle_connect.web3 = new Web3(
-    new Web3.providers.HttpProvider("http://127.0.0.1:7545")
+    new Web3.providers.HttpProvider("http://127.0.0.1:8545")
   );
 
   console.log("Express Listening at http://localhost:" + port);

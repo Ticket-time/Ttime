@@ -50,6 +50,10 @@ contract Ticketing {
         return shows[_showid].ticketPrice;
     }
 
+    function getMyTicket (address userAddr) public view returns (Ticket[] memory ){
+        return myTicket[userAddr];
+    }
+
     /// @notice 송금
     function transferWei (uint _ticketPrice, address payable receiver) public payable{
         address sender = msg.sender;
@@ -64,7 +68,7 @@ contract Ticketing {
         // 공연 주최측 지갑 주소 받아오는 부분 추후 구현
         // s.owner = payable(msg.sender);
         s.owner = payable(_showOwner);
-        s.ticketIndex = 0;
+        s.ticketIndex = 1;
         s.sellingQueueIndex = 0;
         s.ticketPrice = _ticketPrice;
         showIndex++;

@@ -5,6 +5,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 const jwt = require('jsonwebtoken');
 const getFunc = require('./getFunc');
+const db = require('./db');
 
 // 토큰 검증
 exports.verifyToken = (req, res, next) => {
@@ -42,15 +43,15 @@ exports.issueToken = async (req, res) => {
             console.log("토큰 발급 완료");
 
         let result;
-        getFunc.getRows(sql, [id], function(err, data){
-            if (err) {
-                console.log("Error: ", err);
-            }
-            else {
-                console.log("result from db is :", data);
-                return res.send({success: true, code: 200, message: '토큰 발급 완료', token, wallet: data[0].wallet});
-            }
-        });
+            
+        try{
+            const rows = await db.query(sql, [id]);
+            console.log(rows[0][0]);
+            return res.send({success: true, code: 200, message: '토큰 발급 완료', token, wallet: rows[0][0].wallet});
+        } catch(err) {
+            console.log(err);
+            throw(err);
+        }
         
     } catch (error) {
         console.error(error);

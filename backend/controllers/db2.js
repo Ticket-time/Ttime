@@ -1,5 +1,5 @@
 require("dotenv").config();
-var mysql = require("mysql2");
+var mysql = require("mysql");
 
 var db = mysql.createConnection({
   host: process.env.RDS_HOSTNAME,
@@ -19,4 +19,4 @@ db.connect(function (err) {
   console.log("connected to DB");
 });
 
-module.exports = db.promise();
+module.exports = db;
