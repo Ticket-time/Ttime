@@ -4,7 +4,7 @@ var web3 = new Web3();
 const ticketing_artifact = require("../build/contracts/Ticketing.json");
 var Ticketing = contract(ticketing_artifact);
 const db = require("./controllers/db");
-
+const fs = require("fs");
 module.exports = {
   createShow: function (showOwner, ticketPriceEth, callback) {
     var self = this;
@@ -98,6 +98,10 @@ module.exports = {
             const rows = await db.query("select * from shows where showid = ?", [result[i].showId]);
             console.log("hi");
             rows[0][0].ticketId = result[i].ticketId;
+            let showid = rows[0][0].showid;
+            let imgFile = fs.readFileSync(`./image/${showid}.jpg`);
+            let encode = Buffer.from(imgFile).toString("base64");
+            rows[0][0].imgEncode = encode;
             array.push(rows[0][0]);
             console.log(array[0]);
             
