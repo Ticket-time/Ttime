@@ -30,7 +30,7 @@ contract Ticketing {
         uint sellingQueueIndex;
     }
 
-    event ISSUE_TICKET(uint _showId, uint _ticketId);
+    event ISSUE_TICKET(uint indexed _showId, uint indexed _ticketId);
 
     /// @notice 송금 이벤트 
     event TRANSFER (address indexed sender, uint value, address receiver);

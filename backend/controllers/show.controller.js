@@ -4,6 +4,8 @@ const app = express();
 const db = require('./db');
 const bodyParser = require("body-parser");
 const mysql = require("mysql");
+const getFunc = require('./getFunc');
+
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
@@ -11,6 +13,7 @@ app.use(express.json());
 exports.showAll = async(req, res) => {
     let sql = "select * from shows"
     let keyword = req.body.keyword;
+    let imgArr = [];
     if (!(keyword === undefined)) {
         sql = "select * from shows where showname like ";
         keyword = '\'%' + keyword + '%\'';
@@ -29,10 +32,17 @@ exports.showAll = async(req, res) => {
                 console.log("공연 정보 없음");
                 return res.send({success : false, message: "공연정보 없음"});
             }
+            for(let i = 0; i < rows.length; i++) {
+                let imgEncode = img.getImg(rows[i].showid);
+                rows[i].imgEncode = imgEncode;
+            }   
 
             return res.send({success: true, data: rows});
         }
     );
+
+
+    
 }
 
 // 응모 정보를 db에 저장 

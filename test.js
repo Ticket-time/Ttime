@@ -1,20 +1,13 @@
-const express = require("express");
-const app = express();
-const request = require("request");
-const port = 3000;
-app.listen(3000);
+var Web3 = require('web3');
+var web3 = new Web3();
 
-app.get('/image', function(req, res){
-    const options = {
-        url : "http://3.37.125.95/home/ubuntu/img/IMG_3385.jpg",
-        method: 'GET',
-        encoding: null
+const Web3Utils = require('web3-utils');
 
-    };
+web3.setProvider(new web3.providers.HttpProvider("http://127.0.0.1:8545"));
+console.log(web3.eth.accounts[0]);
 
-    request(options, (err, response, body) => {
-        res.set('Content-Type', response.headers['content-type']);
-        res.send(body);
-    });
+let a = web3.eth.getBalance('0x246d89578e515F63DeCC1CEa8bD1df571aE3a705');
+a = Web3Utils.toBN(a);
+console.log(a);
 
-});
+console.log(Web3Utils.fromWei(a, "ether"));
