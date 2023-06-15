@@ -13,6 +13,11 @@ contract Ticketing {
 
     constructor() payable {
         owner = payable(msg.sender);
+        createShow(40000000000000000);   //약 88000
+        createShow(40000000000000000);    
+        createShow(50000000000000000);  // 약 11만 
+        createShow(50000000000000000);
+        createShow(60000000000000000);  // 약 13만 
     }
 
     struct Ticket {
