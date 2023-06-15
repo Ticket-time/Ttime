@@ -1,7 +1,10 @@
 require("dotenv").config();
 const express = require("express");
 const app = express();
+
 const db = require('./db2');
+const fs = require("fs");
+
 const bodyParser = require("body-parser");
 
 const Web3 = require("web3");
@@ -102,7 +105,7 @@ exports.applyList = async (req, res) => {
   const userid = req.decoded.id;
 
   db.query(
-    "select s.showid, s.showname, s.showdate from shows s, apply a where s.showid = a.showid and a.userid = ?;",
+    "select s.showid, s.showname, s.showdate, s.ticketPrice, s.place from shows s, apply a where s.showid = a.showid and a.userid = ?;",
     [userid],
     (err, rows) => {
       if (err) {
@@ -110,18 +113,27 @@ exports.applyList = async (req, res) => {
         throw err;
       }
 
-            // 응모한 게 없을 경우 
-            if (rows.length === 0){
-                console.log(`user: ${ userid } DB에 응모 내역 없음`);
-                return res.send({success : false, message: "응모 내역 없음"});
-            }
-            else {
-                console.log(`user: ${userid} 응모 내역 전송`);
-                return res.send({success: true, message: "응모 내역 있음", rows: rows});
-            }
+      // 응모한 게 없을 경우
+      if (rows.length === 0) {
+        console.log(`user: ${userid} DB에 응모 내역 없음`);
+        return res.send({ success: false, message: "응모 내역 없음" });
+      } else {
+        console.log(`user: ${userid} 응모 내역 전송`);
+        for (let i = 0; i < rows.length; i++) {
+          let showid = rows[i].showid;
+          let imgFile = fs.readFileSync(`./image/${showid}.jpg`);
+          let encode = Buffer.from(imgFile).toString("base64");
+          rows[i].imgEncode = encode;
         }
-    )
-}
+        return res.send({
+          success: true,
+          message: "응모 내역 있음",
+          data: rows,
+        });
+      }
+    }
+  );
+};
 
 exports.getETH = async (req, res) => {
   // 지갑 주소

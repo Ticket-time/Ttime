@@ -7,6 +7,32 @@ const db = require('./db');
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
+exports.showAll = async (req, res) => {
+  let sql = "select * from shows";
+  let keyword = req.body.keyword;
+  let imgArr = [];
+  if (!(keyword === undefined)) {
+    sql = "select * from shows where showname like ";
+    keyword = "'%" + keyword + "%'";
+    sql = sql + keyword;
+  }
+
+  //db에서 전체 정보를 불러온다
+  db.query(sql, [req.body.keyword], (err, rows) => {
+    if (err) {
+      console.log(err);
+      throw err;
+    }
+    for (let i = 0; i < rows.length; i++) {
+      let showid = rows[i].showid;
+      let imgFile = fs.readFileSync(`./image/${showid}_width.jpg`);
+      let encode = Buffer.from(imgFile).toString("base64");
+      rows[i].imgEncode = encode;
+    }
+
+    return res.send({ success: true, data: rows });
+  });
+};
 
 exports.showAll = async(req, res) => {
     console.log("its show");
@@ -98,6 +124,4 @@ exports.showDetails = async(req, res) => {
     }catch(err){
         throw(err);
     }
-
 }
-
