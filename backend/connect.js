@@ -84,7 +84,7 @@ module.exports = {
         let array = [];
         console.log(result.length);
         if(result.length === 0) {
-          callback({ success: true, message: "보유 티켓 없음", data: array });
+          return callback({ success: true, message: "보유 티켓 없음", data: [] });
         }
 
         // json 으로 변환 - 이름 , 날짜, 시간, 이미지 세로긴거, 일시, 장소, 좌석
