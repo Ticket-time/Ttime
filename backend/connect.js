@@ -43,7 +43,19 @@ module.exports = {
           value: price,
         });
       })
-      .then(function (value) {
+      .then(async function (value) {
+        // update payment in apply table
+        const userId = await db.query("select id from user where wallet = ?", [
+          ticketOwner,
+        ]);
+        const rows = await db.query(
+          "update apply set payment=1 where showid = ? and userid = ?",
+          [showId, userId[0][0].id]
+        );
+        if (rows.length > 0) {
+          console.log("apply table 업데이트 완료");
+        }
+
         console.log(`check receipt`);
         let tx = value.tx;
         // log 확인
@@ -76,21 +88,28 @@ module.exports = {
     Ticketing.deployed()
       .then(function (instance) {
         ticketing = instance;
-        
+
         return instance.getMyTicket(userAddr);
       })
       .then(async function (result) {
-        // result는 object 배열이다 
+        // result는 object 배열이다
         let array = [];
         console.log(result.length);
-        if(result.length === 0) {
-          return callback({ success: true, message: "보유 티켓 없음", data: [] });
+        if (result.length === 0) {
+          return callback({
+            success: true,
+            message: "보유 티켓 없음",
+            data: [],
+          });
         }
 
         // json 으로 변환 - 이름 , 날짜, 시간, 이미지 세로긴거, 일시, 장소, 좌석
         for (var i = 0; i < result.length; i++) {
-          try{
-            const rows = await db.query("select * from shows where showid = ?", [result[i].showId]);
+          try {
+            const rows = await db.query(
+              "select * from shows where showid = ?",
+              [result[i].showId]
+            );
             console.log("hi");
             rows[0][0].ticketId = result[i].ticketId;
             let showid = rows[0][0].showid;
@@ -99,14 +118,17 @@ module.exports = {
             rows[0][0].imgEncode = encode;
             array.push(rows[0][0]);
             console.log(array[0]);
-            
-          } catch(err) {
-              console.log(err);
-              throw(err);
+          } catch (err) {
+            console.log(err);
+            throw err;
           }
-        }  
-        console.log(array)// for문 끝 
-        callback({success: true, message: "my ticket 가져오기 성공", data: array })
-      })
-    }
-}
+        }
+        console.log(array); // for문 끝
+        callback({
+          success: true,
+          message: "my ticket 가져오기 성공",
+          data: array,
+        });
+      });
+  },
+};
