@@ -139,5 +139,5 @@ exports.getETH = async(req, res) => {
     balance = Web3Utils.fromWei(balance, "ether");
     console.log(typeof balance);
     console.log(`${balance} ETH`);
-    return res.send({success: true, message: "잔액 조회 성공" balance: balance});
+    return res.send({success: true, message: "잔액 조회 성공", balance: balance});
 }
