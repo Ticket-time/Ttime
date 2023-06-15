@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const app = express();
+var fs = require('fs');
 const db = require('./db');
 const bodyParser = require("body-parser");
 const mysql = require("mysql");
@@ -33,8 +34,10 @@ exports.showAll = async(req, res) => {
                 return res.send({success : false, message: "공연정보 없음"});
             }
             for(let i = 0; i < rows.length; i++) {
-                let imgEncode = getFunc.getImg(rows[i].showid);
-                rows[i].imgEncode = imgEncode;
+                let showid = rows[i].showid;
+                let imgFile = fs.readFileSync(`./image/${showid}_width.jpg`);
+                let encode = Buffer.from(imgFile).toString('base64');
+                rows[i].imgEncode = encode;
             }   
 
             return res.send({success: true, data: rows});

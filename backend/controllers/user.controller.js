@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 const db = require('./db');
+const fs = require('fs');
 const bodyParser = require("body-parser");
 
 
@@ -120,6 +121,12 @@ exports.applyList = async(req, res)=>{
             }
             else {
                 console.log(`user: ${userid} 응모 내역 전송`);
+                for(let i = 0; i < rows.length; i++) {
+                    let showid = rows[i].showid;
+                    let imgFile = fs.readFileSync(`./image/${showid}.jpg`);
+                    let encode = Buffer.from(imgFile).toString('base64');
+                    rows[i].imgEncode = encode;
+                }   
                 return res.send({success: true, message: "응모 내역 있음", rows: rows});
             }
         }
