@@ -13,11 +13,11 @@ contract Ticketing {
 
     constructor() payable {
         owner = payable(msg.sender);
-        createShow(40000000000000000);   //약 88000
-        createShow(40000000000000000);    
-        createShow(50000000000000000);  // 약 11만 
-        createShow(50000000000000000);
-        createShow(60000000000000000);  // 약 13만 
+        createShow(40000000000000000, 0x82b162f01A49d96999e7563949cC738a4928e7EF);   //약 88000
+        createShow(40000000000000000, 0x82b162f01A49d96999e7563949cC738a4928e7EF);    
+        createShow(50000000000000000, 0x5053f90D21c8E15471c30Cb3c065A230E1BaeB09);  // 약 11만 
+        createShow(50000000000000000, 0x5053f90D21c8E15471c30Cb3c065A230E1BaeB09);
+        createShow(60000000000000000, 0x43432190d425F0BCeE18F3C0E011D334A8a5f893);  // 약 13만 
     }
 
     struct Ticket {
@@ -51,7 +51,7 @@ contract Ticketing {
     }
 
     /// @notice 송금
-    function transferETH (uint _ticketPrice, address payable receiver) public payable{
+    function transferWei (uint _ticketPrice, address payable receiver) public payable{
         address sender = msg.sender;
         receiver.transfer(_ticketPrice);
         // receiver.transfer(msg.value);
@@ -59,10 +59,11 @@ contract Ticketing {
     }
 
     /// @notice 공연 생성
-    function createShow(uint _ticketPrice) public returns (bool sufficient){
+    function createShow(uint _ticketPrice, address _showOwner) public returns (bool sufficient){
         Show storage s = shows[showIndex];
         // 공연 주최측 지갑 주소 받아오는 부분 추후 구현
-        s.owner = payable(msg.sender);
+        // s.owner = payable(msg.sender);
+        s.owner = payable(_showOwner);
         s.ticketIndex = 0;
         s.sellingQueueIndex = 0;
         s.ticketPrice = _ticketPrice;
@@ -78,7 +79,7 @@ contract Ticketing {
             ticketId: s.ticketIndex,
             owner: _ticketOwner
         });
-        transferETH(msg.value, s.owner); // 결제 해야 발급
+        transferWei(msg.value, s.owner); // 결제 해야 발급
         // transferETH(s.ticketPrice, s.owner);
 
         s.tickets[s.ticketIndex] = t;
@@ -116,7 +117,7 @@ contract Ticketing {
         // 티켓 기한 만료 확인 require();
 
         // 송금 
-        transferETH(msg.value, seller);
+        transferWei(msg.value, seller);
         emit BUY_TICKET(msg.sender, seller, msg.value);
         delete s.sellingQueue[_sellingQueueIndex];
     }
