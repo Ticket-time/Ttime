@@ -33,7 +33,7 @@ exports.showAll = async(req, res) => {
                 return res.send({success : false, message: "공연정보 없음"});
             }
             for(let i = 0; i < rows.length; i++) {
-                let imgEncode = img.getImg(rows[i].showid);
+                let imgEncode = getFunc.getImg(rows[i].showid);
                 rows[i].imgEncode = imgEncode;
             }   
 
