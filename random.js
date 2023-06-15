@@ -1,6 +1,6 @@
 require("dotenv").config();
 const db = require("./backend/controllers/db");
-const mysql = require("mysql");
+const mysql = require("mysql2");
 
 module.exports = {
   random: function (showid) {

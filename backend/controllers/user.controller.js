@@ -1,8 +1,10 @@
 require("dotenv").config();
 const express = require("express");
 const app = express();
-const db = require("./db");
+
+const db = require('./db2');
 const fs = require("fs");
+
 const bodyParser = require("body-parser");
 
 const Web3 = require("web3");
