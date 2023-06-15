@@ -81,17 +81,12 @@ module.exports = {
       })
       .then(async function (result) {
         // result는 object 배열이다 
-        console.log(`result: ${result}`);
-        console.log(typeof result);
-        console.log(result[0].showId);
-        console.log(result[0].owner);
+        let array = [];
         console.log(result.length);
-        console.log(`ticketId: ${result[0].ticketId}`);
         if(result.length === 0) {
-          return res.send({ success: false, message: "보유 티켓 없음" })
+          callback({ success: true, message: "보유 티켓 없음", data: array });
         }
 
-        let array = [];
         // json 으로 변환 - 이름 , 날짜, 시간, 이미지 세로긴거, 일시, 장소, 좌석
         for (var i = 0; i < result.length; i++) {
           try{
