@@ -1,9 +1,9 @@
 require("dotenv").config();
 const express = require("express");
 const app = express();
-const db = require("./db");
+const db = require("./db2");
 const bodyParser = require("body-parser");
-const mysql = require("mysql2");
+const mysql = require("mysql");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -15,6 +15,7 @@ exports.checkPayable = async (req, res) => {
 
   const sql1 = "SELECT isWin FROM apply WHERE userid=? and showid=?;";
   var params = [userid, showid];
+  
   const sql1s = mysql.format(sql1, params);
 
   const sql2 = "SELECT paystart, payend FROM shows WHERE showid=?;";
@@ -22,6 +23,7 @@ exports.checkPayable = async (req, res) => {
 
   db.query(sql1s + sql2s, async (err, results) => {
     let sql1s_result = JSON.parse(JSON.stringify(results[0]));
+   
     let sql2s_result = JSON.parse(JSON.stringify(results[1]));
     sql1s_result = sql1s_result[0];
     sql2s_result = sql2s_result[0];

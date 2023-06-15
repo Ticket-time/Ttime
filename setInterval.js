@@ -1,5 +1,5 @@
 require("dotenv").config();
-const db = require("./backend/controllers/db");
+const db = require("./backend/controllers/db2");
 const random = require("./random.js");
 
 module.exports = {
