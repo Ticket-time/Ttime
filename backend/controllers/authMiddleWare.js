@@ -39,7 +39,7 @@ exports.issueToken = async (req, res) => {
         console.log(id);
         const token = await jwt.sign({ id }
             ,process.env.JWT_SECRET_KEY
-            ,{expiresIn: '2m', issuer: '문정만크크크'});
+            ,{expiresIn: '1d', issuer: '문정만크크크'});
             console.log("토큰 발급 완료");
 
         let result;
