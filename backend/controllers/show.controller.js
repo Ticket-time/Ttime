@@ -49,7 +49,7 @@ exports.showAll = async(req, res) => {
         const data = await db.query(sql, [keyword]);
         if (data[0].length === 0) {
             console.log("공연 정보 없음");
-            return res.send({success : false, message: "공연정보 없음"});
+            return res.send({success : true, message: "공연정보 없음", data: []});
         }
         for(let i = 0; i < data[0].length; i++) {
             let showid = data[0][i].showid;
@@ -58,7 +58,7 @@ exports.showAll = async(req, res) => {
             data[0][i].imgEncode = encode;
         }   
         
-        return res.send({success: true, data: data[0]});
+        return res.send({success: true, message: "성공", data: data[0]});
     
     } catch(err) {
         console.log(err);
