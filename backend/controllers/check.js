@@ -48,7 +48,6 @@ exports.checkPayable = async (req, res) => {
       let code;
       if (sql1s_result.payment == true) {
         //이미 결제 완료
-        code = 222;
         return res.send({
           success: false,
           message: "결제가 이미 완료됨",
@@ -56,7 +55,6 @@ exports.checkPayable = async (req, res) => {
         });
       } else {
         // 결제 안 된 상태 - 이 상태만 결제가 가능
-        code = 333;
         return res.send({
           success: true,
           message: "결제 가능",
@@ -66,7 +64,7 @@ exports.checkPayable = async (req, res) => {
     } else {
       console.log("결제 기간이 지났습니다. 혹은 아직입니다.");
       return res.send({
-        success: false,
+        success: true,
         message: "결제 불가",
         code: 444,
       });
