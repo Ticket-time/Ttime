@@ -35,7 +35,7 @@ exports.checkPayable = async (req, res) => {
     // 당첨 여부 확인
     if (sql1s_result.isWin == 0) {
       console.log("추첨 결과: X");
-      return res.send({ success: false, message: "당첨X", code: 111 });
+      return res.send({ success: true, message: "당첨X", code: 111 });
     }
     // 기간 확인 paystart ~ payend 사이일 것
     let _paystart = new Date(sql2s_result.paystart);
@@ -49,7 +49,7 @@ exports.checkPayable = async (req, res) => {
       if (sql1s_result.payment == true) {
         //이미 결제 완료
         return res.send({
-          success: false,
+          success: true,
           message: "결제가 이미 완료됨",
           code: 222,
         });
