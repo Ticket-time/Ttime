@@ -58,7 +58,7 @@ exports.showAll = async(req, res) => {
             data[0][i].imgEncode = encode;
         }   
         
-        return res.send({success: true, message: "성공", data: data[0]});
+        return res.send({success: true, message: "공연 정보 있음", data: data[0]});
     
     } catch(err) {
         console.log(err);
