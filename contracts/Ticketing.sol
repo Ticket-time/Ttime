@@ -5,7 +5,6 @@ contract Ticketing {
     address payable owner; // 앱 관리자 
     uint public showIndex = 1; // 공연 id 1부터 시작
     uint public userIndex; 
-    uint public sellingQueueIndex;
 
     mapping(uint => Show) public shows; // 전체 공연 목록
     mapping(address => Ticket[]) public myTicket; // 소비자용
@@ -18,6 +17,7 @@ contract Ticketing {
         createShow(50000000000000000, 0x5053f90D21c8E15471c30Cb3c065A230E1BaeB09);  // 약 11만 
         createShow(50000000000000000, 0x5053f90D21c8E15471c30Cb3c065A230E1BaeB09);
         createShow(60000000000000000, 0x43432190d425F0BCeE18F3C0E011D334A8a5f893);  // 약 13만 
+        showIndex = 6; 
     }
 
     struct Ticket {
@@ -32,7 +32,8 @@ contract Ticketing {
         uint ticketPrice;
         mapping(uint => Ticket) tickets; // ticket 정보
         mapping(uint => Ticket) sellingQueue; // 양도 티켓 큐
-        uint sellingQueueIndex;
+        uint sellingQueueHead;
+        uint sellingQueueTail;
     }
 
     event ISSUE_TICKET(uint indexed _showId, uint indexed _ticketId);
@@ -54,6 +55,24 @@ contract Ticketing {
         return myTicket[userAddr];
     }
 
+    function getResellTicket(uint _showid) public view returns (Ticket[] memory) {
+        uint tailIdx = shows[_showid].sellingQueueTail; 
+        uint headIdx = shows[_showid].sellingQueueHead;
+        uint tmp = tailIdx-headIdx; // 5 - 2 (2,3,4) = 3
+        Ticket[] memory resellTicketList = new Ticket[](tmp);
+
+        uint j = 0;
+        for(uint i = headIdx; i < tailIdx; i++){ 
+            Ticket memory t = shows[_showid].sellingQueue[i]; 
+            if (t.ticketId > 0) { // null 체크
+                resellTicketList[j] = t;
+                j++;
+            }
+        }
+
+        return resellTicketList;
+    }
+
     /// @notice 송금
     function transferWei (uint _ticketPrice, address payable receiver) public payable{
         address sender = msg.sender;
@@ -69,7 +88,8 @@ contract Ticketing {
         // s.owner = payable(msg.sender);
         s.owner = payable(_showOwner);
         s.ticketIndex = 1;
-        s.sellingQueueIndex = 0;
+        s.sellingQueueHead = 0;
+        s.sellingQueueTail = 0;
         s.ticketPrice = _ticketPrice;
         showIndex++;
         return true;
@@ -104,8 +124,8 @@ contract Ticketing {
         );
 
         // 티켓을 셀링큐에 넣음 => 해당 공연에 대한 리셀 티켓 확인 가능
-        s.sellingQueue[s.sellingQueueIndex] = s.tickets[_ticketId];
-        s.sellingQueueIndex++;
+        s.sellingQueue[s.sellingQueueTail] = s.tickets[_ticketId];
+        s.sellingQueueTail++;
 
         emit RESELL(msg.sender, _showId, _ticketId);
     }
