@@ -69,7 +69,6 @@ contract Ticketing {
                 j++;
             }
         }
-
         return resellTicketList;
     }
 
