@@ -131,4 +131,70 @@ module.exports = {
         });
       });
   },
+  getResellTicket: async function (showId, callback) {
+    var self = this;
+    Ticketing.setProvider(self.web3.currentProvider);
+    var ticketing;
+
+    Ticketing.deployed()
+      .then(function (instance) {
+        ticketing = instance;
+
+        return instance.getResellTicket(showId);
+      })
+      .then(async function (result) {
+        let array = [];
+        console.log(result.length);
+        if (result.length === 0) {
+          return callback({
+            success: true,
+            message: "해당 공연 tx 없음",
+            data: [],
+          });
+        }
+        for (var i = 0; i < result.length; i++) {
+          try {
+            const rows = await db.query(
+              "select * from shows where showid = ?",
+              [result[i].showId]
+            );
+            rows[0][0].ticketId = result[i].ticketId;
+            let showid = rows[0][0].showid;
+            let imgFile = fs.readFileSync(`./image/${showid}.jpg`);
+            let encode = Buffer.from(imgFile).toString("base64");
+            rows[0][0].imgEncode = encode;
+            array.push(rows[0][0]);
+            console.log(array[0]);
+          } catch (err) {
+            console.log(err);
+            throw err;
+          }
+        }
+        callback({
+          success: true,
+          message: "tx 가져오기 성공",
+          data: array,
+        });
+      });
+  },
+
+  resellTicket: async function (showId, ticketId, userAddr, callback) {
+    var self = this;
+    Ticketing.setProvider(self.web3.currentProvider);
+    var ticketing;
+    Ticketing.deployed()
+      .then(function (instance) {
+        ticketing = instance;
+
+        return instance.resellTicket(showId, ticketId, {
+          from: userAddr,
+        });
+      })
+      .then(
+        callback({
+          success: true,
+          message: "양도 탭에 티켓 추가 완료",
+        })
+      );
+  },
 };
