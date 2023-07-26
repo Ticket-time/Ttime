@@ -51,6 +51,25 @@ app.post("/home", (req, res) => {
   });
 });
 
+app.post("/tx", (req, res) => {
+  console.log("**** POST /tx ****");
+  let showId = parseInt(req.body.showId);
+  truffle_connect.getResellTicket(showId, function (result) {
+    res.send(result);
+  });
+});
+
+app.post("/tx/resell", (req, res) => {
+  console.log("**** POST /tx/resell ****");
+  // 유저 계정 필요- token ?
+  let showId = parseInt(req.body.showId);
+  let ticketId = parseInt(req.body.ticketId);
+  let userAddr = req.body.userAddr;
+  truffle_connect.resellTicket(showId, ticketId, userAddr, function (result) {
+    res.send(result);
+  });
+});
+
 setInterval.scheduleRandomFunc();
 // // email 인증
 // app.post("/mail_verify", async(req, res)=> {
