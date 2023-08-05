@@ -3,7 +3,7 @@ const Web3 = require("web3");
 var web3 = new Web3();
 const ticketing_artifact = require("../build/contracts/Ticketing.json");
 var Ticketing = contract(ticketing_artifact);
-const db = require("./controllers/db");
+const db = require("./util/database");
 const fs = require("fs");
 module.exports = {
   createShow: function (showOwner, ticketPriceEth, callback) {

@@ -5,7 +5,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 const jwt = require('jsonwebtoken');
 const getFunc = require('./getFunc');
-const db = require('./db');
+const db = require('../util/database');
 
 // 토큰 검증
 exports.verifyToken = (req, res, next) => {
