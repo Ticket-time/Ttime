@@ -1,6 +1,6 @@
 
 var fs = require('fs');
-const db = require('./db');
+const db = require('../util/database');
 
 module.exports = {
     getImg : function(showid) {

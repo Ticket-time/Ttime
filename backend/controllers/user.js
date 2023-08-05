@@ -1,19 +1,19 @@
-require("dotenv").config();
 const express = require("express");
-const app = express();
-
-const db = require('./db2');
+const dotenv = require("dotenv").config();
+const db = require('../util/database');
 const fs = require("fs");
-
-const bodyParser = require("body-parser");
-
 const Web3 = require("web3");
-var web3 = new Web3();
+const bodyParser = require("body-parser");
 const Web3Utils = require("web3-utils");
-web3.setProvider(new web3.providers.HttpProvider("http://127.0.0.1:8545"));
+const User = require("../models/user");
 
+const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+const web3 = new Web3();
+web3.setProvider(new web3.providers.HttpProvider("http://127.0.0.1:8545"));
+
 
 // 권한 확인 auth
 
@@ -101,39 +101,6 @@ exports.login = async (req, res, next) => {
   );
 };
 
-exports.applyList = async (req, res) => {
-  const userid = req.decoded.id;
-
-  db.query(
-    "select s.showid, s.showname, s.showdate, s.ticketPrice, s.place from shows s, apply a where s.showid = a.showid and a.userid = ?;",
-    [userid],
-    (err, rows) => {
-      if (err) {
-        console.log(err);
-        throw err;
-      }
-
-      // 응모한 게 없을 경우
-      if (rows.length === 0) {
-        console.log(`user: ${userid} DB에 응모 내역 없음`);
-        return res.send({ success: false, message: "응모 내역 없음" });
-      } else {
-        console.log(`user: ${userid} 응모 내역 전송`);
-        for (let i = 0; i < rows.length; i++) {
-          let showid = rows[i].showid;
-          let imgFile = fs.readFileSync(`./image/${showid}.jpg`);
-          let encode = Buffer.from(imgFile).toString("base64");
-          rows[i].imgEncode = encode;
-        }
-        return res.send({
-          success: true,
-          message: "응모 내역 있음",
-          data: rows,
-        });
-      }
-    }
-  );
-};
 
 exports.getETH = async (req, res) => {
   // 지갑 주소
@@ -153,4 +120,69 @@ exports.getETH = async (req, res) => {
     message: "잔액 조회 성공",
     balance: balance,
   });
+};
+
+
+
+
+
+
+//****************************************************************************************** */
+
+
+// 응모 정보를 db에 저장 => user로 옮겨야됨 
+exports.apply = (req, res) => {
+  const showid = req.body.showid;
+  //const userid = req.decoded.id;  // jwt 인증한 user 
+  const userid = req.body.id; 
+
+  User.apply(showid, userid)
+  .then(([rows, fieldData]) => {
+    console.log(rows);
+    console.log(`응모 완료: 공연 ${showid}, 유저 ${userid}`);
+    return res.send({
+      success: true,
+      code: 222,
+      message: "응모 완료"
+    });
+  })
+  .catch(err => {      // 근데 이런 건 사실 애초에 문제가 없게 만들어야 되니까 쓰읍 일단 ㅇㅋ
+    console.log(err);
+    return res.send({
+      success: false,
+      message: "DB 오류"
+    })
+  });
+};
+
+exports.applyList = (req, res) => {
+  //const userid = req.decoded.id;
+  const userid = req.body.id;
+  
+  User.getApplyList(userid)
+  .then(([rows]) => {
+    if(rows.length === 0) {
+      return res.send({
+        success: true,
+        message: "응모 내역 없음",
+        data: rows
+      });
+    }
+
+    console.log(`user: ${userid} 응모 내역 확인`);
+
+    // for (let i = 0; i < rows.length; i++) {
+    //   let showid = rows[i].showid;
+    //   let imgFile = fs.readFileSync(`./image/${showid}.jpg`);
+    //   let encode = Buffer.from(imgFile).toString("base64");
+    //   rows[i].imgEncode = encode;
+    // }
+    return res.send({
+      success: true,
+      message: "응모 내역 있음",
+      data: rows,
+    });
+
+  })
+  .catch(err => console.log(err))
 };

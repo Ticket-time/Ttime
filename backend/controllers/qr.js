@@ -1,4 +1,4 @@
-const db = require("./db2");
+const db = require("../util/db2");
 const qrcode = require("qrcode");
 
 exports.getQR = async(req, res) => {

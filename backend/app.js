@@ -1,20 +1,24 @@
-require("dotenv").config();
 const express = require("express");
-const app = express();
 const Web3 = require("web3");
-const port = 3000 || process.env.PORT;
+const dotenv = require("dotenv").config();
 const setInterval = require("../setInterval.js");
 const truffle_connect = require("./connect.js");
-
-// const smtpTransport = require('./email.js');
 const bodyParser = require("body-parser");
+// const smtpTransport = require('./email.js');
+
+const userRouter = require("./routes/user.js");
+const showRouter = require("./routes/show.js");
+const authRouter = require('./routes/auth.js');
+
+const port = process.env.PORT;
+const app = express();
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-var userRouter = require("./routes/userRouter");
-var showRouter = require("./routes/showRouter");
 app.use("/users", userRouter);
 app.use("/shows", showRouter); // 전체 공연
+app.use(authRouter);
 
 app.post("/payTicket", (req, res) => {
   console.log("**** POST /payTicket ****");
