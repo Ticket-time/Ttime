@@ -20,4 +20,9 @@ module.exports = class User {
     static isApplied(userid, showid) {
         return db.execute("SELECT * FROM apply WHERE userid = ? and showid = ?", [userid, showid]);
     }
+
+    static getApplyInfo(userid, showid) {
+        return db.execute("SELECT isWin, payment FROM apply WHERE userid = ? and showid = ?", [userid, showid]);
+    }
+    
 }

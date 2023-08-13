@@ -5,7 +5,7 @@ const userMiddleWare = require("../controllers/user");
 const auth = require("../controllers/auth");
 const email = require("../controllers/email");
 const check = require("../controllers/check");
-const qr = require('../controllers/qr');
+const qr = require('../controllers/show');
 
 // router.post("/register", userMiddleWare.signup);
 // router.post("/login", userMiddleWare.login, auth.issueToken);///, auth.issueToken);
