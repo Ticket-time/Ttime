@@ -27,6 +27,4 @@ module.exports = class Show {
         return db.execute(`SELECT * FROM shows WHERE showname LIKE ?`, [query]);
     }
 
-    
-
 }
