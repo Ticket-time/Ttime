@@ -5,6 +5,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 const jwt = require('jsonwebtoken');
 const db = require('../util/database');
+const User = require('../models/user');
 
 // 토큰 검증
 exports.verifyToken = (req, res, next) => {
@@ -59,7 +60,42 @@ exports.issueToken = async (req, res) => {
             message: '서버 에러'
         });
     }
-
-    
-
 };
+
+exports.checkID = (req, res) => {
+    const { userid } = req.body;
+    User.findId(userid)
+    .then(([rows]) => {
+        if(rows.length === 0) { // 중복 id 없음
+            return res.send({
+                confirmed: true,
+                message: "중복 ID 없음",
+                success: true
+            })
+        }
+        else {
+            return res.send({
+                confirmed: false,
+                message: "중복되는 ID",
+                success: true
+            })
+        }
+    }).catch(err => console.log(err));
+}
+
+exports.checkPhoneNumber = (req, res, next) => {
+    const { phoneNumber } = req.body;
+    User.findPhoneNumber(phoneNumber)
+    .then(([rows]) => {
+        if(rows.length === 0) { // 중복 id 없음
+            next();
+        }
+        else {
+            return res.send({
+                confirmed: false,
+                message: "이미 가입된 전화번호",
+                success: true
+            })
+        }
+    }).catch(err => console.log(err));
+}
