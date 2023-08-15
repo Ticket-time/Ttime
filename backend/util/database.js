@@ -11,11 +11,4 @@ const pool = mysql.createPool({
   database: 'ttime'
 });
 
-// pool.connect(err => {
-//   if (err) {
-//     return console.error("DB connection failed" + err.stack);
-//   }
-//   console.log("connected to DB");
-// });
-
 module.exports = pool.promise();
