@@ -4,7 +4,6 @@ const router = express.Router();
 const userMiddleWare = require("../controllers/user");
 const auth = require("../controllers/auth");
 const email = require("../controllers/email");
-const check = require("../controllers/check");
 const qr = require('../controllers/show');
 
 // router.post("/register", userMiddleWare.signup);
@@ -16,9 +15,9 @@ const qr = require('../controllers/show');
 //router.post('/applyList', auth.verifyToken, userMiddleWare.applyList);
 router.post('/apply', userMiddleWare.apply);
 router.post('/applyList', userMiddleWare.applyList);
+router.post("/checkPayable", userMiddleWare.checkPayable);
 
 
-router.post("/checkPayable", check.checkPayable);
 router.post('/getETH', userMiddleWare.getETH);
 router.post('/getQR', qr.getQR);
 module.exports = router;

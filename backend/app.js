@@ -1,7 +1,7 @@
 const express = require("express");
 const Web3 = require("web3");
 const dotenv = require("dotenv").config();
-const setInterval = require("../setInterval.js");
+const setInterval = require("./controllers/setInterval.js");
 const truffle_connect = require("./connect.js");
 const bodyParser = require("body-parser");
 // const smtpTransport = require('./email.js');

@@ -124,9 +124,6 @@ exports.getETH = async (req, res) => {
 
 
 
-
-
-
 //****************************************************************************************** */
 
 
@@ -146,7 +143,7 @@ exports.apply = (req, res) => {
       message: "응모 완료"
     });
   })
-  .catch(err => {      // 근데 이런 건 사실 애초에 문제가 없게 만들어야 되니까 쓰읍 일단 ㅇㅋ
+  .catch(err => {      
     console.log(err);
     return res.send({
       success: false,
@@ -186,3 +183,52 @@ exports.applyList = (req, res) => {
   })
   .catch(err => console.log(err))
 };
+
+exports.checkPayable = (req, res) => {
+
+  let {userid, showid} = req.body;
+  let sysdate = new Date();
+
+  User.getApplyInfo(userid, showid)
+  .then(([apply]) => {
+    // length === 0 이면 일단 안씀 
+    apply = apply[0];
+    if(apply.isWin == false) {
+      return res.send({ 
+        success: true, 
+        message: "당첨되지 않았습니다.", 
+        code: 111 });
+    }
+    
+    let _paystart = new Date(apply.paystart);
+    let _payend = new Date(apply.payend);
+
+    if (_paystart <= sysdate && _payend > sysdate) {
+      // 결제 기간
+      //console.log(apply.payment, typeof(apply.payment));
+
+      if(apply.payment == true) {
+        return res.send({
+          success: true,
+          message: "결제가 이미 완료됨",
+          code: 222,
+        });
+      } else {
+        return res.send({
+          success: true,
+          message: "결제 가능",
+          code: 333
+        });
+      }
+    } else {
+      console.log("결제 기간이 지났습니다. 혹은 아직입니다.");
+      return res.send({
+        success: true,
+        message: "결제 불가",
+        code: 444,
+      });
+    }
+   
+  })
+  .catch(err => console.log(err));
+}

@@ -22,7 +22,9 @@ module.exports = class User {
     }
 
     static getApplyInfo(userid, showid) {
-        return db.execute("SELECT isWin, payment FROM apply WHERE userid = ? and showid = ?", [userid, showid]);
+        return db.execute("SELECT a.userid, a.showid, isWin, payment, s.paystart, s.payend FROM apply a, shows s where a.showid = s.showid and a.userid= ? and a.showid = ?", [userid, showid]);
+      // return db.execute("SELECT isWin, payment FROM apply a, shows s WHERE userid = ? and showid = ?", [userid, showid]);
+
     }
     
 }

@@ -4,7 +4,6 @@ const app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 const jwt = require('jsonwebtoken');
-const getFunc = require('./getFunc');
 const db = require('../util/database');
 
 // 토큰 검증
