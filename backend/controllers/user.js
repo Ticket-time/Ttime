@@ -1,6 +1,5 @@
 const express = require("express");
 const dotenv = require("dotenv").config();
-const db = require('../util/database');
 const fs = require("fs");
 const Web3 = require("web3");
 const bodyParser = require("body-parser");
@@ -15,32 +14,6 @@ const web3 = new Web3();
 web3.setProvider(new web3.providers.HttpProvider("http://127.0.0.1:8545"));
 
 
-// 로그인 -> 토큰 발급
-exports.login = async (req, res, next) => {
-  console.log(req.body);
-  const { id, password } = req.body;
-
-  db.query(
-    "select * from user where id = ? and password = ?",
-    [id, password],
-    (err, rows) => {
-      if (err) {
-        console.log(err);
-        throw err;
-      }
-
-      if (rows.length === 0) {
-        console.log("로그인 정보가 일치하지 않습니다.");
-        return res.send({ success: false, message: "로그인 실패" });
-      } else {
-        console.log("로그인 정보가 일치합니다");
-        return next();
-      }
-    }
-  );
-};
-
-
 exports.getETH = async (req, res) => {
   // 지갑 주소
   const wallet = req.body.wallet;
@@ -48,7 +21,7 @@ exports.getETH = async (req, res) => {
   if (!wallet) {
     return res.send({ success: false, message: "잘못된 지갑 주소" });
   }
-
+  
   let balance = web3.eth.getBalance(wallet);
   balance = Web3Utils.toBN(balance);
   balance = Web3Utils.fromWei(balance, "ether");
@@ -61,9 +34,9 @@ exports.getETH = async (req, res) => {
   });
 };
 
-
-
 //****************************************************************************************** */
+
+
 exports.signup = async (req, res) => {
   const { id, password, phoneNumber, wallet} = req.body;
 
@@ -74,6 +47,27 @@ exports.signup = async (req, res) => {
       message: "회원가입 완료"
     });
   }).catch(err => console.log(err));
+};
+
+// 로그인 -> 토큰 발급
+exports.login = async (req, res, next) => {
+  const { id, password } = req.body;
+
+  User.findId(id)
+  .then(([rows]) => {
+    if(rows.length === 0 || rows[0].password !== password) {
+      console.log("로그인 정보가 일치하지 않습니다.");
+      return res.send({
+        success: false, 
+        message: "로그인 실패" 
+      });
+    } else {
+      console.log("로그인 성공.");
+      //return next();
+
+    }
+  })
+  .catch(err => console.log(err));
 };
 
 exports.apply = (req, res) => {
@@ -114,14 +108,12 @@ exports.applyList = (req, res) => {
       });
     }
 
-    console.log(`user: ${userid} 응모 내역 확인`);
+    for (let i = 0; i < rows.length; i++) {
+      let imgFile = fs.readFileSync(`./image/${rows[i].showid}.jpg`);
+      let encode = Buffer.from(imgFile).toString("base64");
+      rows[i].imgEncode = encode;
+    }
 
-    // for (let i = 0; i < rows.length; i++) {
-    //   let showid = rows[i].showid;
-    //   let imgFile = fs.readFileSync(`./image/${showid}.jpg`);
-    //   let encode = Buffer.from(imgFile).toString("base64");
-    //   rows[i].imgEncode = encode;
-    // }
     return res.send({
       success: true,
       message: "응모 내역 있음",
