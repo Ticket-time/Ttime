@@ -19,15 +19,18 @@ exports.showAll = (req, res) => {
                 data: shows
             });
         }
-//     for(let i = 0; i < data[0].length; i++) {
-//         let showid = data[0][i].showid;
-//         let imgFile = fs.readFileSync(`./image/${showid}_width.jpg`);
-//         let encode = Buffer.from(imgFile).toString('base64');
-//         data[0][i].imgEncode = encode;
-//     }   
-    
-//     return res.send({success: true, message: "공연 정보 있음", data: data[0]});       
-        console.log(shows);
+        else {
+            for(let i = 0; i < shows.length; i++) {
+                let imgFile = fs.readFileSync(`./image/${shows[i].showid}_width.jpg`);
+                let encode = Buffer.from(imgFile).toString('base64');
+                shows[i].imgEncode = encode;
+            }   
+            return res.send({
+                success: true, 
+                message: "공연 정보 있음", 
+                data: shows,
+            });       
+        }
     })
     .catch(err => console.log(err));
 }
@@ -44,14 +47,19 @@ exports.getSearchedShow = async(req, res) => {
                 data: shows
             });
         }
-//     for(let i = 0; i < data[0].length; i++) {
-//         let showid = data[0][i].showid;
-//         let imgFile = fs.readFileSync(`./image/${showid}_width.jpg`);
-//         let encode = Buffer.from(imgFile).toString('base64');
-//         data[0][i].imgEncode = encode;
-//     }   
-    
-//     return res.send({success: true, message: "공연 정보 있음", data: data[0]});
+        else {
+            for(let i = 0; i < shows.length; i++) {
+                let imgFile = fs.readFileSync(`./image/${shows[i].showid}_width.jpg`);
+                let encode = Buffer.from(imgFile).toString('base64');
+                shows[i].imgEncode = encode;
+            }   
+            
+            return res.send({
+                success: true, 
+                message: "공연 정보 있음", 
+                data: shows
+            });
+        }
     })
     .catch(err => console.log(err));
 }

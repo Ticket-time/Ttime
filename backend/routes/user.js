@@ -6,6 +6,7 @@ const auth = require("../controllers/auth");
 const qr = require('../controllers/show');
 
 router.post("/register", userMiddleWare.signup);
+router.post("/login", userMiddleWare.login);
 // router.post("/login", userMiddleWare.login, auth.issueToken);///, auth.issueToken);
 // router.get('/token/test', auth.verifyToken);
 
