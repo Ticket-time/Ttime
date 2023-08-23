@@ -16,7 +16,7 @@ module.exports = class Search {
     static delete(date) {
         // 현재 날짜를 주면 day를 1 뺀 날짜보다 작은거는 다 삭제 
         date.setDate(date.getDate() - 1);
-        console.log(date);
+        console.log('models search' + date);
         return db.execute("DELETE FROM search WHERE date < ?", [date]);
     }
 
