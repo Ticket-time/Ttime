@@ -76,7 +76,7 @@ app.post("/tx/resell", (req, res) => {
   });
 });
 
-setInterval.scheduleRandomFunc();
+//setInterval.scheduleRandomFunc();
 
 app.listen(port, () => {
   // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
@@ -92,13 +92,15 @@ app.listen(port, () => {
    */
 
   const rule = new schedule.RecurrenceRule();
-  rule.dayOfWeek = [0, new schedule.Range(0, 6)];
-  rule.hour = 24;
+  rule.hour = 0;
   rule.minute = 0;
+  rule.second = 0;
   rule.tz = 'Asia/Seoul';
+
   schedule.scheduleJob(rule, function(){
     console.log('app.js파일에서 출력' + new Date());
     search.deleteWord();
+    setInterval.callRandomFunc();
   });
   
   console.log("Express Listening at http://localhost:" + port);
