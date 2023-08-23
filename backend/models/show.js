@@ -23,7 +23,6 @@ module.exports = class Show {
 
     static findByName(name) {
         let query = "%" + name + "%";
-        console.log(query);
         return db.execute(`SELECT * FROM shows WHERE showname LIKE ?`, [query]);
     }
 
