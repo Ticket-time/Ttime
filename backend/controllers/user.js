@@ -36,7 +36,6 @@ exports.getETH = async (req, res) => {
 
 //****************************************************************************************** */
 
-
 exports.signup = async (req, res) => {
   const { id, password, phoneNumber, wallet} = req.body;
 

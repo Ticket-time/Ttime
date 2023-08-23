@@ -13,7 +13,12 @@
 // console.log(Web3Utils.fromWei(a, "ether"));
 
 var cache = require('memory-cache');
+const schedule = require('node-schedule');
 
-cache.put("010", "1111");
-console.log(cache.get("010"));
-console.log(cache.get("000"));
+
+// cache.put("010", "1111");
+// console.log(cache.get("010"));
+// console.log(cache.get("000"));D
+// let word = "seventeen tour";
+// word = word.trim();
+// console.log(word);
