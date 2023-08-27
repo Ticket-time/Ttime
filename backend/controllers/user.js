@@ -62,7 +62,7 @@ exports.login = async (req, res, next) => {
       });
     } else {
       console.log("로그인 성공.");
-      //return next();
+      return next();
 
     }
   })
