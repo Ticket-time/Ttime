@@ -13,7 +13,25 @@
 // console.log(Web3Utils.fromWei(a, "ether"));
 
 var cache = require('memory-cache');
+const schedule = require('node-schedule');
 
-cache.put("010", "1111");
-console.log(cache.get("010"));
-console.log(cache.get("000"));
+
+// cache.put("010", "1111");
+// console.log(cache.get("010"));
+// console.log(cache.get("000"));D
+// let word = "seventeen tour";
+// word = word.trim();
+// console.log(word);
+
+const now = new Date();
+  const nextMidnight = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate() + 1,
+    0,
+    0,
+    0
+  );
+  
+const timeUntilMidnight = nextMidnight.getTime() - now.getTime();
+  console.log("자정까지 시간(ms): " + timeUntilMidnight);

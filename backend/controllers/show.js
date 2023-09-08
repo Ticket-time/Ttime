@@ -35,9 +35,12 @@ exports.showAll = (req, res) => {
     .catch(err => console.log(err));
 }
 
+
+
+
 exports.getSearchedShow = async(req, res) => {
     const keyword = req.body.keyword;
-    console.log(keyword);
+    console.log(`getSearchedShow: ${keyword}`);
     await Show.findByName(keyword)
     .then(([shows]) => {
         if(shows.length === 0) {
@@ -152,4 +155,7 @@ exports.getQR = async(req, res) => {
     })
     .catch(err => console.log())
 }
+
+
+
 

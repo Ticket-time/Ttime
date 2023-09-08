@@ -2,8 +2,11 @@ const express = require("express");
 const Web3 = require("web3");
 const dotenv = require("dotenv").config();
 const setInterval = require("./controllers/setInterval.js");
+const search = require('./controllers/search.js');
+
 const truffle_connect = require("./connect.js");
 const bodyParser = require("body-parser");
+const schedule = require('node-schedule');
 
 const userRouter = require("./routes/user.js");
 const showRouter = require("./routes/show.js");
@@ -73,50 +76,32 @@ app.post("/tx/resell", (req, res) => {
   });
 });
 
-setInterval.scheduleRandomFunc();
-// // email 인증
-// app.post("/mail_verify", async(req, res)=> {
+//setInterval.scheduleRandomFunc();
 
-//     let date = new Date();
-//     let id = req.body.id;
-//     let email = req.body.email;
-
-//     const emailToken = jwt.sign(
-//         {
-//             "id": id,
-//             "created": date.toString()
-//         },
-//         process.env.JWT_SECRET_KEY_EMAIL,
-//         {
-//              expiresIn: process.env.JWT_EXPIRES_IN
-//         }
-//     );
-
-//     let url = `${process.env.BASE_URL}/user/confirmation/${emailToken}`;
-
-//     let info = await smtpTransport.sendMail({
-//         from: 'T-Time', // sender address
-//         to: email, // list of receivers seperated by comma
-//         subject: "Account Verification", // Subject line
-//         html: `Please click this email to confirm your email: <a href="${url}">${url} </a>`// plain text body
-//     }, (error, info) => {
-
-//         if (error) {
-//             console.log(error)
-//             return;
-//         }
-//         console.log('Message sent successfully!');
-//         console.log(info);
-//         smtpTransport.close();
-//         res.send('성공');
-//     });
-
-// });
 app.listen(port, () => {
   // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
   truffle_connect.web3 = new Web3(
     new Web3.providers.HttpProvider("http://127.0.0.1:8545")
   );
 
+  
+  /**
+   * 자정마다 실행하는 함수 
+   * 1. 추첨할 공연이 있는지 체크하는 함수
+   * 2. 랭킹 재조정하고 이전 검색 기록 삭제하는 함수 
+   */
+
+  const rule = new schedule.RecurrenceRule();
+  rule.hour = 0;
+  rule.minute = 0;
+  rule.second = 0;
+  rule.tz = 'Asia/Seoul';
+
+  schedule.scheduleJob(rule, function(){
+    console.log('app.js파일에서 출력' + new Date());
+    search.deleteWord();
+    setInterval.callRandomFunc();
+  });
+  
   console.log("Express Listening at http://localhost:" + port);
 });

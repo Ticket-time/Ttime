@@ -23,8 +23,12 @@ module.exports = class Show {
 
     static findByName(name) {
         let query = "%" + name + "%";
-        console.log(query);
         return db.execute(`SELECT * FROM shows WHERE showname LIKE ?`, [query]);
+    }
+
+    static findByDate() {
+        // 추첨 시간: 응모 종료일 + 1 DAY
+        return db.execute("SELECT showid FROM shows WHERE curdate() = DATE(DATE_ADD(applyend, INTERVAL 1 DAY))");
     }
 
 }
