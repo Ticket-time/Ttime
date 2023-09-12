@@ -11,3 +11,4 @@ router.post('/keyword', search.insertWord, showMiddleWare.getSearchedShow);
 router.post('/detail', showMiddleWare.showDetails);
 
 module.exports = router;
+

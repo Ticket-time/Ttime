@@ -101,6 +101,9 @@ app.listen(port, () => {
     console.log('app.js파일에서 출력' + new Date());
     search.deleteWord();
     setInterval.callRandomFunc();
+
+    // rank 
+    
   });
   
   console.log("Express Listening at http://localhost:" + port);
