@@ -10,10 +10,10 @@ router.post("/register", userMiddleWare.signup);
 router.post("/login", userMiddleWare.login, auth.issueToken);///, auth.issueToken);
 // router.get('/token/test', auth.verifyToken);
 
-//router.post('/apply', auth.verifyToken, userMiddleWare.apply);
-//router.post('/applyList', auth.verifyToken, userMiddleWare.applyList);
-router.post('/apply', userMiddleWare.apply);
-router.post('/applyList', userMiddleWare.applyList);
+router.post('/apply', auth.verifyToken, userMiddleWare.apply);
+router.post('/applyList', auth.verifyToken, userMiddleWare.applyList);
+//router.post('/apply', userMiddleWare.apply);
+//router.post('/applyList', userMiddleWare.applyList);
 router.post("/checkPayable", userMiddleWare.checkPayable);
 
 

@@ -71,8 +71,8 @@ exports.login = async (req, res, next) => {
 
 exports.apply = (req, res) => {
   const showid = req.body.showid;
-  //const userid = req.decoded.id;  // jwt 인증한 user 
-  const userid = req.body.id; 
+  const userid = req.decoded.id;  // jwt 인증한 user 
+  
 
   User.apply(showid, userid)
   .then(([rows, fieldData]) => {
@@ -94,8 +94,8 @@ exports.apply = (req, res) => {
 };
 
 exports.applyList = (req, res) => {
-  //const userid = req.decoded.id;
-  const userid = req.body.id;
+  const userid = req.decoded.id;
+  //const userid = req.body.id;
   
   User.getApplyList(userid)
   .then(([rows]) => {
