@@ -12,11 +12,11 @@ contract Ticketing {
 
     constructor() payable {
         owner = payable(msg.sender);
-        createShow(40000000000000000, 0x82b162f01A49d96999e7563949cC738a4928e7EF);   //약 88000
-        createShow(40000000000000000, 0x82b162f01A49d96999e7563949cC738a4928e7EF);    
-        createShow(50000000000000000, 0x5053f90D21c8E15471c30Cb3c065A230E1BaeB09);  // 약 11만 
-        createShow(50000000000000000, 0x5053f90D21c8E15471c30Cb3c065A230E1BaeB09);
-        createShow(60000000000000000, 0x43432190d425F0BCeE18F3C0E011D334A8a5f893);  // 약 13만 
+        createShow(40000000000000000, 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4);   //약 88000
+        createShow(40000000000000000, 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4);    
+        createShow(50000000000000000, 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4);  // 약 11만 
+        createShow(50000000000000000, 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4);
+        createShow(60000000000000000, 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4);  // 약 13만 
         showIndex = 6; 
     }
 
@@ -87,8 +87,8 @@ contract Ticketing {
         // s.owner = payable(msg.sender);
         s.owner = payable(_showOwner);
         s.ticketIndex = 1;
-        s.sellingQueueHead = 0;
-        s.sellingQueueTail = 0;
+        s.sellingQueueHead = 1;
+        s.sellingQueueTail = 1;
         s.ticketPrice = _ticketPrice;
         showIndex++;
         return true;
@@ -143,6 +143,22 @@ contract Ticketing {
         transferWei(msg.value, seller);
         emit BUY_TICKET(msg.sender, seller, msg.value);
         delete s.sellingQueue[_sellingQueueIndex];
+
+
+          // 구매자에게 티켓 소유권 부여
+        t.owner = payable(msg.sender);
+        myTicket[msg.sender].push(t);
+        
+        // 판매자의 티켓 소유권 삭제
+        // 티켓 전체를 다시 소유권 검사하면서 본인 소유가 아닌 티켓 삭제 
+        for (uint i = 0; i < myTicket[seller].length; i++) {
+            if (_showId == myTicket[seller][i].showId) {
+                delete myTicket[seller][i];
+                break;   // 한 장씩만 거래해서 찾으면 break함
+
+            }
+        }
+
     }
 
 }
