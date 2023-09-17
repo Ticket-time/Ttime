@@ -13,7 +13,11 @@ module.exports = class Show {
 
     // 전체 공연 불러오기 + 검색한 공연 불러오기 (현재 진행중인)
     static fetchAll() {
-        return db.execute("SELECT * FROM shows");
+        return db.execute("SELECT * FROM shows where showdate > sysdate()"); 
+    }
+
+    static fetchOneTypeShow(type) {
+        return db.execute("SELECT * FROM shows WHERE isLottery = ?", [type]);
     }
 
     // 공연 세부 정보 가져오기 

@@ -32,6 +32,7 @@
     "qrcode": "^1.5.3",
     "request": "^2.88.2",
     "serve-static": "^1.15.0",
+    "truffle": "^5.11.4",
     "truffle-contract": "^4.0.31",
     "web3": "^0.20.0"
   }

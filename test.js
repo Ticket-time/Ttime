@@ -12,8 +12,8 @@
 
 // console.log(Web3Utils.fromWei(a, "ether"));
 
-var cache = require('memory-cache');
-const schedule = require('node-schedule');
+// var cache = require('memory-cache');
+// const schedule = require('node-schedule');
 
 
 // cache.put("010", "1111");
@@ -23,15 +23,15 @@ const schedule = require('node-schedule');
 // word = word.trim();
 // console.log(word);
 
-const now = new Date();
-  const nextMidnight = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate() + 1,
-    0,
-    0,
-    0
-  );
+// const now = new Date();
+//   const nextMidnight = new Date(
+//     now.getFullYear(),
+//     now.getMonth(),
+//     now.getDate() + 1,
+//     0,
+//     0,
+//     0
+//   );
   
-const timeUntilMidnight = nextMidnight.getTime() - now.getTime();
-  console.log("자정까지 시간(ms): " + timeUntilMidnight);
+// const timeUntilMidnight = nextMidnight.getTime() - now.getTime();
+//   console.log("자정까지 시간(ms): " + timeUntilMidnight);
