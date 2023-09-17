@@ -9,6 +9,7 @@ router.post('/', showMiddleWare.showAll);
 router.post('/search', search.rank);
 router.post('/keyword', search.insertWord, showMiddleWare.getSearchedShow);
 router.post('/detail', showMiddleWare.showDetails);
+router.post('/type', showMiddleWare.getTypeShow);
 
 module.exports = router;
 
