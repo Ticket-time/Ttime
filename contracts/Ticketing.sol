@@ -143,22 +143,22 @@ contract Ticketing {
         transferWei(msg.value, seller);
         emit BUY_TICKET(msg.sender, seller, msg.value);
         delete s.sellingQueue[_sellingQueueIndex];
-
-
-          // 구매자에게 티켓 소유권 부여
+        
+        /////////////////////////////////////////////////
+        
+        // 구매자에게 티켓 소유권 부여
         t.owner = payable(msg.sender);
         myTicket[msg.sender].push(t);
         
         // 판매자의 티켓 소유권 삭제
         // 티켓 전체를 다시 소유권 검사하면서 본인 소유가 아닌 티켓 삭제 
         for (uint i = 0; i < myTicket[seller].length; i++) {
-            if (_showId == myTicket[seller][i].showId) {
+            if (myTicket[seller][i].owner != seller) {
                 delete myTicket[seller][i];
                 break;   // 한 장씩만 거래해서 찾으면 break함
-
             }
         }
-
+        
     }
 
 }
