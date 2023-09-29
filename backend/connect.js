@@ -156,4 +156,26 @@ module.exports = {
     }
     callback({ success: true, message: "양도 탭에 티켓 추가 완료" });
   },
+
+  handOverTicket: async function (showId, userAddr, callback) {
+    const self = this;
+    await Ticketing.setProvider(self.web3.currentProvider);
+    const ticketing = await Ticketing.deployed();
+    //sellingQueueIndex -
+    // 1. sellingQueue의 map key를 자연수 순서대로 : 근데 이건 티켓이 많아질수록..?
+    // 1-1. index를 따로 저장해서 쉽게 찾게 하기
+    // 1-2. 사용자가 표 좌석을 알 수 없는 상태로 큐 차례대로 양도 (채택)
+    // 2. sellingQueue의 map key를 ticketID로 : getResellTicket 할 때 복잡해져서 안 됨
+    const sellingQueueIndex = await ticketing.getQueueHeadIndex(showId);
+    try {
+      await ticketing.buyTicket(showId, sellingQueueIndex, { from: userAddr });
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+    callback({
+      success: true,
+      message: "티켓 양도 받기 완료",
+    });
+  },
 };
