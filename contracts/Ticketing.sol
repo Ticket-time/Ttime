@@ -55,6 +55,9 @@ contract Ticketing {
         return myTicket[userAddr];
     }
 
+    function getQueueHeadIndex (uint _showid) public view returns (uint headindex){
+        return shows[_showid].sellingQueueHead;
+    }
     function getResellTicket(uint _showid) public view returns (Ticket[] memory) {
         uint tailIdx = shows[_showid].sellingQueueTail; 
         uint headIdx = shows[_showid].sellingQueueHead;
@@ -158,7 +161,7 @@ contract Ticketing {
                 break;   // 한 장씩만 거래해서 찾으면 break함
             }
         }
-        
+        s.sellingQueueHead++;
     }
 
 }
