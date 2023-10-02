@@ -1,10 +1,18 @@
 // tx Router
 const express = require("express");
 const txMiddleWare = require("../controllers/tx");
+
 const router = express.Router();
 
 router.post("/", txMiddleWare.getResellTicket);
 router.post("/resell", txMiddleWare.resell);
 router.post("/handOver", txMiddleWare.handOver);
+
+router.post("/cancelTicket", txMiddleWare.cancelTicket);
+
+router.post("/cancelLotteryTicket", txMiddleWare.cancelLotteryTicket);
+
+
+
 
 module.exports = router;
