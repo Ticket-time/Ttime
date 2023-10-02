@@ -16,11 +16,6 @@ module.exports = class Show {
     return db.execute("SELECT * FROM shows where showdate > sysdate()");
   }
 
-  // 거래 탭에서 공연 불러오기 (티켓 발급 진행된 공연 대상)
-  static fetchAll_tx() {
-    return db.execute("SELECT * FROM shows where payend < sysdate()");
-  }
-
   static fetchOneTypeShow(type) {
     return db.execute("SELECT * FROM shows WHERE isLottery = ?", [type]);
   }
@@ -39,6 +34,19 @@ module.exports = class Show {
     // 추첨 시간: 응모 종료일 + 1 DAY
     return db.execute(
       "SELECT showid FROM shows WHERE curdate() = DATE(DATE_ADD(applyend, INTERVAL 1 DAY))"
+    );
+  }
+
+  // 거래 탭에서 공연 불러오기 (티켓 발급 진행된 공연 대상)
+  static fetchAll_tx() {
+    return db.execute("SELECT * FROM shows where payend < sysdate()");
+  }
+
+  static findByName_tx(name) {
+    let query = "%" + name + "%";
+    return db.execute(
+      `SELECT * FROM shows WHERE showname LIKE ? and payend < sysdate()`,
+      [query]
     );
   }
 };
