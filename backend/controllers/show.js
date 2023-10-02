@@ -112,6 +112,32 @@ exports.getSearchedShow = async (req, res) => {
     .catch((err) => console.log(err));
 };
 
+exports.getSearchedShowTx = async (req, res) => {
+  const keyword = req.body.keyword;
+  await Show.findByName_tx(keyword)
+    .then(([shows]) => {
+      if (shows.length === 0) {
+        return res.send({
+          success: true,
+          message: "검색 결과 없음",
+          data: shows,
+        });
+      } else {
+        for (let i = 0; i < shows.length; i++) {
+          let imgFile = fs.readFileSync(`./image/${shows[i].showid}_width.jpg`);
+          let encode = Buffer.from(imgFile).toString("base64");
+          shows[i].imgEncode = encode;
+        }
+        return res.send({
+          success: true,
+          message: "공연 정보 있음",
+          data: shows,
+        });
+      }
+    })
+    .catch((err) => console.log(err));
+};
+
 exports.showDetails = (req, res) => {
   const { userid, showid } = req.body;
   let sysdate = new Date();
