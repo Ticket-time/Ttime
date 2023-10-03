@@ -41,4 +41,20 @@ module.exports = class Show {
       "SELECT showid FROM shows WHERE curdate() = DATE(DATE_ADD(applyend, INTERVAL 1 DAY))"
     );
   }
+
+  static findPayendByDate() {
+    // 결제 탈락 시간: PAYEND
+    return db.execute(
+      "SELECT showid FROM shows WHERE curdate() = DATE(payend)"
+    );
+  }
+
+  // 당첨자 미결제건 조사
+  static findUnpayment(id) {
+    return db.execute(
+      // 당첨자니까 isLottery 경우로 생각해야 함
+      "SELECT userid FROM apply WHERE payment = 0 and isWin = 1 and showid = ?",
+      [id]
+    );
+  }
 };
