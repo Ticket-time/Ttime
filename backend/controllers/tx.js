@@ -29,6 +29,14 @@ module.exports = {
     });
   },
 
+  cancelResell: (req, res) => {
+    const { bookingId } = req.body;
+
+    truffle_connect.cancelResell(bookingId, function(result) {
+      res.send(result);
+    })
+  },
+
 // @완료 - 거래탭에 올라온 티켓을 구매하는 함수
   buyTicket: (req, res) => {
     const { userId, bookingId, userAddr } = req.body;

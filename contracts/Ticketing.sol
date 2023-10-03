@@ -15,7 +15,7 @@ contract Ticketing {
 
     enum TicketStatus {
         Sold,   // 판매 완료
-		Canceled, // 취소표
+		//Canceled, // 취소표
         OnSale,  // 양도표
         Expired  // 공연 날짜 지나서 폐기됨 or 일반 예매 취소로 발급한 티켓 폐기
     }
@@ -152,6 +152,11 @@ contract Ticketing {
         // 4. selling List에서 삭제 
         index = ticket.indexForSellingBookingIdList;
         removeFromShow(index, ticket.showId);
+    }
+
+    function changeTicketStatus(uint _bookingId) public {
+        Ticket storage ticket = ticketForBookingId[_bookingId];
+        ticket.status = TicketStatus.Sold;
     }
 
     // 추첨제 취소표의 소유자를 매니저로 변경 

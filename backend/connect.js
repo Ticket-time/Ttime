@@ -150,6 +150,27 @@ module.exports = {
     callback({ success: true, message: "거래 탭에 티켓 추가 완료" });
   },
 
+  cancelResell: async function (bookingId, callback) {
+    const self = this;
+    await Ticketing.setProvider(self.web3.currentProvider);
+    const ticketing = await Ticketing.deployed();
+
+    try {
+      let ticket = await ticketing.getTicketForBookingId(bookingId, {from : manager});
+      await ticketing.removeFromShow(ticket.indexForSellingBookingIdList, ticket.showId, {from : manager});
+      await ticketing.changeTicketStatus(bookingId, {from : manager});
+
+    } catch(err) {
+      console.log(err);
+      throw err;
+    }
+
+    callback({
+      success : true,
+      message : "판매 취소 완료"
+    })
+  },
+
   // @완료 
   buyTicketForHandOver: async function (userId, userAddr, bookingId, callback) {
     const self = this;
@@ -260,6 +281,8 @@ async function calculatePrice (ticket)  {
   return totalPrice;
 }
 
+
+// 양도 중인 티켓인지 정보 같이 보내기 
 async function makeData (result) {
   console.log("makedata result");
   console.log(result);
@@ -270,6 +293,7 @@ async function makeData (result) {
 
       rows.bookingId = result[i].bookingId;
       rows.owner = result[i].owner;
+      rows.status = result[i].status;
 
       let imgFile = fs.readFileSync(`./image/${rows.showid}.jpg`);
       let encode = Buffer.from(imgFile).toString("base64");
