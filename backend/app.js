@@ -24,16 +24,37 @@ app.use("/shows", showRouter); // 전체 공연
 app.use(authRouter);
 app.use("/tx", txRouter);
 
+
+// const rand = require("./controllers/random.js");
+// // @ test
+// app.post("/random", (req, res) => {
+//   console.log("random");
+  
+
+// })
+
+
+// @완료
 app.post("/payTicket", (req, res) => {
   console.log("**** POST /payTicket ****");
-  let showId = parseInt(req.body.showId);
-  let ticketOwner = req.body.ticketOwner;
-  console.log(showId);
-  console.log(ticketOwner);
-  truffle_connect.issueTicket(showId, ticketOwner, function (result) {
-    res.send({ success: true, message: result });
+  const { showId, userId, ticketOwner, numberOfSeats } = req.body;
+
+  truffle_connect.issueTicket(showId, ticketOwner, numberOfSeats, userId, function (result) {
+    res.send(result);
   });
 });
+
+// @완료
+app.post("/home", (req, res) => {
+  console.log("**** POST /home ****");
+
+  const { userAddr } = req.body;
+
+  truffle_connect.getMyTicket(userAddr, function (result) {
+    res.send(result);
+  });
+});
+
 
 app.post("/createShow", (req, res) => {
   console.log("**** POST /createShow ****");
@@ -45,15 +66,6 @@ app.post("/createShow", (req, res) => {
   });
 });
 
-app.post("/home", (req, res) => {
-  console.log("**** POST /home ****");
-  let userAddr = req.body.userAddr;
-  truffle_connect.getMyTicket(userAddr, function (result) {
-    res.send(result);
-  });
-});
-
-//setInterval.scheduleRandomFunc();
 
 app.listen(port, () => {
   // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)

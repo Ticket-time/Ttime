@@ -2,166 +2,179 @@
 pragma solidity ^0.8.13;
 
 contract Ticketing {
-    address payable owner; // 앱 관리자 
-    uint public showIndex = 1; // 공연 id 1부터 시작
-    uint public userIndex; 
-
-    mapping(uint => Show) public shows; // 전체 공연 목록
-    mapping(address => Ticket[]) public myTicket; // 소비자용
-    mapping(address => Show[]) public myShow; // 공연 관계자용
+    address payable owner; // 앱 관리자     
 
     constructor() payable {
         owner = payable(msg.sender);
-        createShow(40000000000000000, 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4);   //약 88000
-        createShow(40000000000000000, 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4);    
-        createShow(50000000000000000, 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4);  // 약 11만 
-        createShow(50000000000000000, 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4);
-        createShow(60000000000000000, 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4);  // 약 13만 
-        showIndex = 6; 
     }
 
+    mapping(address => uint[]) public bookingIdList;   // 예매 번호 리스트  사용자 지갑 주소 => 예매 번호 리스트
+    mapping(uint => Ticket) public ticketForBookingId;  // 예매 번호에 대한 티켓   예매 번호 => 티켓 
+    
+    mapping(uint => uint[]) public sellingBookingIdList; // showid => 해당 공연에서 거래 중인 예매 번호 리스트  공연 번호 => 예매 번호 리스트 
+
+    enum TicketStatus {
+        Sold,   // 판매 완료
+		Canceled, // 취소표
+        OnSale,  // 양도표
+        Expired  // 공연 날짜 지나서 폐기됨 or 일반 예매 취소로 발급한 티켓 폐기
+    }
+
+     // 예매 개념 - 누가, 어떤 공연을, 몇장, 좌석, 상태(판매 중인지 등)
     struct Ticket {
-        uint showId;
-        uint ticketId;
+        uint bookingId;
         address payable owner;
+        string userId;
+        uint showId;
+        uint numberOfSeats;
+        //string[] seatList;   그냥 좌석 이름만 저장해도 ㄱㅊ을거 같지만 일단 보류
+        uint price;
+        TicketStatus status;  
+        uint indexForBookingIdList;  
+        uint indexForSellingBookingIdList; // 쓰읍;;;시발 
     }
 
-    struct Show {
-        address payable owner; // 공연 주최측
-        uint ticketIndex;
-        uint ticketPrice;
-        mapping(uint => Ticket) tickets; // ticket 정보
-        mapping(uint => Ticket) sellingQueue; // 양도 티켓 큐
-        uint sellingQueueHead;
-        uint sellingQueueTail;
-    }
+    function getMyTicket(address payable userAddr) public view returns(Ticket[] memory){
+        uint length = bookingIdList[userAddr].length;
+        Ticket[] memory myTickets = new Ticket[](length);
 
-    event ISSUE_TICKET(uint indexed _showId, uint indexed _ticketId);
-
-    /// @notice 송금 이벤트 
-    event TRANSFER (address indexed sender, uint value, address receiver);
-
-    /// @notice 티켓 재판매 등록 이벤트
-    event RESELL(address _owner, uint _showId, uint _ticketId);
-
-    /// @notice 티켓 구매 이벤트 
-    event BUY_TICKET(address from, address to, uint _ticketPrice);
-
-    function getTicketPrice (uint _showid) public view returns (uint ticketPrice){
-        return shows[_showid].ticketPrice;
-    }
-
-    function getMyTicket (address userAddr) public view returns (Ticket[] memory ){
-        return myTicket[userAddr];
-    }
-
-    function getQueueHeadIndex (uint _showid) public view returns (uint headindex){
-        return shows[_showid].sellingQueueHead;
-    }
-    function getResellTicket(uint _showid) public view returns (Ticket[] memory) {
-        uint tailIdx = shows[_showid].sellingQueueTail; 
-        uint headIdx = shows[_showid].sellingQueueHead;
-        uint tmp = tailIdx-headIdx; // 5 - 2 (2,3,4) = 3
-        Ticket[] memory resellTicketList = new Ticket[](tmp);
-
-        uint j = 0;
-        for(uint i = headIdx; i < tailIdx; i++){ 
-            Ticket memory t = shows[_showid].sellingQueue[i]; 
-            if (t.ticketId > 0) { // null 체크
-                resellTicketList[j] = t;
-                j++;
-            }
+        for(uint i = 0; i < length; i++){
+            uint bookingId = bookingIdList[userAddr][i];
+            myTickets[i] = ticketForBookingId[bookingId];
         }
+   
+        return myTickets;
+    }
+
+    function getResellTicket(uint _showId) public view returns(Ticket[] memory) {
+        
+        uint size = sellingBookingIdList[_showId].length;
+        Ticket[] memory resellTicketList = new Ticket[](size);
+
+        for(uint i = 0; i < size; i++) {
+            uint bookingId = sellingBookingIdList[_showId][i];
+            resellTicketList[i] = ticketForBookingId[bookingId];
+        }
+
         return resellTicketList;
     }
 
-    /// @notice 송금
-    function transferWei (uint _ticketPrice, address payable receiver) public payable{
-        address sender = msg.sender;
-        receiver.transfer(_ticketPrice);
-        // receiver.transfer(msg.value);
-        emit TRANSFER(sender, _ticketPrice, receiver);
-    }
+    uint public bookingID = 1; 
 
-    /// @notice 공연 생성
-    function createShow(uint _ticketPrice, address _showOwner) public returns (bool sufficient){
-        Show storage s = shows[showIndex];
-        // 공연 주최측 지갑 주소 받아오는 부분 추후 구현
-        // s.owner = payable(msg.sender);
-        s.owner = payable(_showOwner);
-        s.ticketIndex = 1;
-        s.sellingQueueHead = 1;
-        s.sellingQueueTail = 1;
-        s.ticketPrice = _ticketPrice;
-        showIndex++;
-        return true;
-    }
+    event ISSUE_TICKET(uint indexed _showId, uint indexed _bookingId, uint indexed _numberOfSeats);
+    function issueTicket(uint _showId, address payable _ticketOwner, uint _numberOfSeats, string calldata _userId) public payable {
 
-     /// @notice 티켓을 응모한 사람 중 당첨된 사람한테 발급
-    function issueTicket(uint _showId, address payable _ticketOwner) public payable{
-        Show storage s = shows[_showId];
-        Ticket memory t = Ticket({
+        Ticket memory ticket = Ticket({
+            bookingId: bookingID,
+            owner: _ticketOwner,
+            userId: _userId,
             showId: _showId,
-            ticketId: s.ticketIndex,
-            owner: _ticketOwner
+            numberOfSeats: _numberOfSeats,
+            price: msg.value,
+            status: TicketStatus.Sold,
+            indexForBookingIdList: 0,
+            indexForSellingBookingIdList: 0
         });
-        transferWei(msg.value, s.owner); // 결제 해야 발급
-        // transferETH(s.ticketPrice, s.owner);
 
-        s.tickets[s.ticketIndex] = t;
-        myTicket[msg.sender].push(t);
+        owner.transfer(msg.value);  // 공연 주인에게 티켓값 지불
 
-        emit ISSUE_TICKET(_showId, s.ticketIndex);
-        s.ticketIndex++;
+        bookingIdList[_ticketOwner].push(bookingID);
+        ticketForBookingId[bookingID] = ticket;
+
+        uint index = bookingIdList[_ticketOwner].length - 1;
+        ticketForBookingId[bookingID].indexForBookingIdList = index;
+
+        emit ISSUE_TICKET(_showId, bookingID, _numberOfSeats);
+
+        bookingID++;
     }
 
-    /// @notice 티켓 재판매 (or 양도) 등록 함수
-    function resellTicket(uint _showId, uint _ticketId) public {
-        Show storage s = shows[_showId];
-
-        // 티켓 소유 여부 확인
-        require(
-            msg.sender == s.tickets[_ticketId].owner,
-            "You don't have the ticket"
-        );
-
-        // 티켓을 셀링큐에 넣음 => 해당 공연에 대한 리셀 티켓 확인 가능
-        s.sellingQueue[s.sellingQueueTail] = s.tickets[_ticketId];
-        s.sellingQueueTail++;
-
-        emit RESELL(msg.sender, _showId, _ticketId);
-    }
-
-    /// @notice 셀링큐에서 티켓 양도 받음
-    function buyTicket(uint _showId, uint _sellingQueueIndex) public payable {
-        Show storage s = shows[_showId];
-        Ticket memory t = s.sellingQueue[_sellingQueueIndex];
+    function removeFromUser(uint _bookingId) public{
+        address payable _refunder = ticketForBookingId[_bookingId].owner;
+        uint _index = ticketForBookingId[_bookingId].indexForBookingIdList;
         
-        address payable seller = t.owner;
+        require(_index < bookingIdList[_refunder].length, "index out of bound");
 
-        // require(msg.value == s.ticketPrice, "Not enough ETH!");
-        // 티켓 기한 만료 확인 require();
-
-        // 송금 
-        transferWei(msg.value, seller);
-        emit BUY_TICKET(msg.sender, seller, msg.value);
-        delete s.sellingQueue[_sellingQueueIndex];
-        
-        /////////////////////////////////////////////////
-        
-        // 구매자에게 티켓 소유권 부여
-        t.owner = payable(msg.sender);
-        myTicket[msg.sender].push(t);
-        
-        // 판매자의 티켓 소유권 삭제
-        // 티켓 전체를 다시 소유권 검사하면서 본인 소유가 아닌 티켓 삭제 
-        for (uint i = 0; i < myTicket[seller].length; i++) {
-            if (myTicket[seller][i].owner != seller) {
-                delete myTicket[seller][i];
-                break;   // 한 장씩만 거래해서 찾으면 break함
-            }
+        for(uint i = _index; i < bookingIdList[_refunder].length - 1; i++){
+            bookingIdList[_refunder][i] = bookingIdList[_refunder][i + 1];
         }
-        s.sellingQueueHead++;
+        bookingIdList[_refunder].pop();
+    }
+
+    function getTicketForBookingId(uint _bookingId) public view returns(Ticket memory){
+        return ticketForBookingId[_bookingId];
+    }
+
+    // @ 판매자에게 돈 송금
+    function pay(uint _bookingId) public payable {
+        address payable oldOwner = ticketForBookingId[_bookingId].owner;
+        oldOwner.transfer(msg.value);
+    }
+
+    //양도 = 거래탭에 올리겠다는 함수
+    event RESELL(uint indexed _showId, uint indexed _bookingId);
+    function resellTicket(uint _bookingId) public { 
+        uint _showId = ticketForBookingId[_bookingId].showId;
+        sellingBookingIdList[_showId].push(_bookingId);
+
+        // 티켓 상태 변경
+        ticketForBookingId[_bookingId].status = TicketStatus.OnSale;
+        ticketForBookingId[_bookingId].indexForSellingBookingIdList = sellingBookingIdList[_showId].length - 1;
+
+        emit RESELL(_showId, _bookingId);
+    }
+
+    function removeFromShow(uint _index, uint _showId) public{
+        require(_index < sellingBookingIdList[_showId].length, "index out of bound");
+
+        for(uint i = _index; i < sellingBookingIdList[_showId].length - 1; i++){
+            sellingBookingIdList[_showId][i] = sellingBookingIdList[_showId][i + 1];
+        }
+        sellingBookingIdList[_showId].pop();
+    }
+
+    // 거래탭에서 티켓 구매
+    function changeTicketInfo(string calldata _userId, address _buyer, uint _bookingId) public payable {
+        
+        Ticket storage ticket = ticketForBookingId[_bookingId];
+
+        // 1. buyer의 예매 번호 리스트에 추가
+        bookingIdList[_buyer].push(_bookingId);       
+
+        // 2. 티켓 정보 변경 
+        ticket.owner =  payable (_buyer);
+        ticket.userId = _userId;
+        ticket.status = TicketStatus.Sold;  // 이후 양도표로
+
+        uint index = bookingIdList[_buyer].length - 1;
+        ticket.indexForBookingIdList = index;
+
+        // 4. selling List에서 삭제 
+        index = ticket.indexForSellingBookingIdList;
+        removeFromShow(index, ticket.showId);
+    }
+
+    // 추첨제 취소표의 소유자를 매니저로 변경 
+    function changeOwner(uint _bookingId) public {
+        Ticket storage ticket = ticketForBookingId[_bookingId];
+        ticket.owner = payable(msg.sender);
+        ticket.userId = "manager";
+        
+        bookingIdList[ticket.owner].push(_bookingId);    
+
+        uint index = bookingIdList[ticket.owner].length - 1;
+        ticketForBookingId[bookingID].indexForBookingIdList = index;
+    }
+
+    // 일반 예매 취소표 정보 초기화 (티켓 만료)
+    function initializeTicketInfo(uint _bookingId) public {
+         Ticket storage ticket = ticketForBookingId[_bookingId];
+
+        ticket.owner = owner;
+        ticket.userId = "Expried Ticket";
+        ticket.status = TicketStatus.Expired;
+        ticket.numberOfSeats = 0;
+        ticket.price = 0;
     }
 
 }

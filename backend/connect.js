@@ -7,6 +7,15 @@ const db = require("./util/database");
 const fs = require("fs");
 const Show = require("./models/show");
 
+const RefundRatio = {
+  Before7: 100,
+  Between7and3: 80,
+  Between3and1: 60,
+  NoRefund: 0
+}
+
+let manager = '0x246d89578e515F63DeCC1CEa8bD1df571aE3a705';
+
 module.exports = {
   createShow: async function (showOwner, ticketPriceEth, callback) {
     try {
@@ -24,57 +33,64 @@ module.exports = {
       callback("ERROR 404");
     }
   },
-  issueTicket: async function (showId, ticketOwner, callback) {
+
+  // @완료
+  issueTicket: async function (showId, ticketOwner, numberOfSeats, userId, callback) {
     try {
       const self = this;
       await Ticketing.setProvider(self.web3.currentProvider);
       const ticketing = await Ticketing.deployed();
-      const price = await ticketing.getTicketPrice(showId);
-      const result = await ticketing.issueTicket(showId, ticketOwner, {
-        from: ticketOwner,
-        value: price,
-      });
-      console.log(`price: ${price}`);
-      const userId = await db.query("select id from user where wallet = ?", [
-        ticketOwner,
-      ]);
-      const rows = await db.query(
-        "update apply set payment=1 where showid = ? and userid = ?",
-        [showId, userId[0][0].id]
-      );
-      if (rows.length > 0) {
-        console.log("apply table 업데이트 완료");
-      }
-      console.log(`check receipt`);
-      let tx = result.tx;
 
+      const [[{ticketPrice}]] = await db.query("select ticketPrice from shows where showid = ?", [showId]);
+      let totalPrice = web3.toWei(ticketPrice) * numberOfSeats;
+      console.log("totalPrice = " + totalPrice);
+
+      const result = await ticketing.issueTicket(showId, ticketOwner, numberOfSeats, userId, {
+        from: ticketOwner,
+        value: totalPrice
+      });
+
+      // 추첨제라면 응모 table 업데이트 
+      const [[{isLottery}]] = await db.query("select isLottery from shows where showid = ?", [showId]);
+
+      if (isLottery){
+       await db.query(
+          "update apply set payment = 1 where showid = ? and userid = ?",
+          [showId, userId]
+        );
+      }
+
+      console.log(`check receipt`);
+
+      let tx = result.tx;
       // log 확인
       for (let i = 0; i < result.logs.length; i++) {
         let log = result.logs[i];
         if (log.event == "ISSUE_TICKET") {
           // We found the event!
           let param1 = log.args._showId;
-          let param2 = log.args._ticketId;
           if (showId == param1) {
-            callback({
-              tx: tx,
-              message: `showId: ${param1}, ticketId: ${param2}`,
-            });
+            callback({ success: true, data: { tx: tx,  bookingId: log.args._bookingId}});
           }
           break;
         }
       }
+    
     } catch (e) {
       console.log(e);
       callback("발급 오류");
     }
   },
+
+  // @완료
   getMyTicket: async function (userAddr, callback) {
     const self = this;
     await Ticketing.setProvider(self.web3.currentProvider);
     const ticketing = await Ticketing.deployed();
+
+    // 2d-arr 
     const result = await ticketing.getMyTicket(userAddr);
-    let array = [];
+
     if (result.length === 0) {
       return callback({
         success: true,
@@ -82,37 +98,26 @@ module.exports = {
         data: [],
       });
     }
-    for (var i = 0; i < result.length; i++) {
-      try {
-        // const rows = await db.query("select * from shows where showid = ?", [
-        //   result[i].showId,
-        // ]);
-        const rows = await Show.findById(result[i].showId);
-        rows[0][0].ticketId = result[i].ticketId;
-        let showid = rows[0][0].showid;
-        let imgFile = fs.readFileSync(`./image/${showid}.jpg`);
-        let encode = Buffer.from(imgFile).toString("base64");
-        rows[0][0].imgEncode = encode;
-        array.push(rows[0][0]);
-        console.log(array[0]);
-      } catch (err) {
-        console.log(err);
-        throw err;
-      }
-    }
-    console.log(array); // for문 끝
+    
+    let array = await makeData(result);
+    
     callback({
       success: true,
       message: "my ticket 가져오기 성공",
       data: array,
     });
+    
   },
+
+  // @완료
   getResellTicket: async function (showId, callback) {
     const self = this;
     await Ticketing.setProvider(self.web3.currentProvider);
     const ticketing = await Ticketing.deployed();
+
+    // 2d array
     const result = await ticketing.getResellTicket(showId);
-    let array = [];
+
     if (result.length === 0) {
       return callback({
         success: true,
@@ -120,23 +125,9 @@ module.exports = {
         data: [],
       });
     }
-    for (var i = 0; i < result.length; i++) {
-      try {
-        const rows = await db.query("select * from shows where showid = ?", [
-          result[i].showId,
-        ]);
-        rows[0][0].ticketId = result[i].ticketId;
-        let showid = rows[0][0].showid;
-        let imgFile = fs.readFileSync(`./image/${showid}.jpg`);
-        let encode = Buffer.from(imgFile).toString("base64");
-        rows[0][0].imgEncode = encode;
-        array.push(rows[0][0]);
-        console.log(array[0]);
-      } catch (err) {
-        console.log(err);
-        throw err;
-      }
-    }
+   
+    let array = await makeData(result);
+
     callback({
       success: true,
       message: "tx 가져오기 성공",
@@ -144,31 +135,40 @@ module.exports = {
     });
   },
 
-  resellTicket: async function (showId, ticketId, userAddr, callback) {
+  // @완료
+  resellTicket: async function (bookingId, callback) {
     const self = this;
     await Ticketing.setProvider(self.web3.currentProvider);
     const ticketing = await Ticketing.deployed();
+
     try {
-      await ticketing.resellTicket(showId, ticketId, { from: userAddr });
+      await ticketing.resellTicket(bookingId, { from: manager });
     } catch (err) {
       console.log(err);
       throw err;
     }
-    callback({ success: true, message: "양도 탭에 티켓 추가 완료" });
+    callback({ success: true, message: "거래 탭에 티켓 추가 완료" });
   },
 
-  handOverTicket: async function (showId, userAddr, callback) {
+  // @완료 
+  buyTicketForHandOver: async function (userId, userAddr, bookingId, callback) {
     const self = this;
     await Ticketing.setProvider(self.web3.currentProvider);
     const ticketing = await Ticketing.deployed();
-    //sellingQueueIndex -
-    // 1. sellingQueue의 map key를 자연수 순서대로 : 근데 이건 티켓이 많아질수록..?
-    // 1-1. index를 따로 저장해서 쉽게 찾게 하기
-    // 1-2. 사용자가 표 좌석을 알 수 없는 상태로 큐 차례대로 양도 (채택)
-    // 2. sellingQueue의 map key를 ticketID로 : getResellTicket 할 때 복잡해져서 안 됨
-    const sellingQueueIndex = await ticketing.getQueueHeadIndex(showId);
+
     try {
-      await ticketing.buyTicket(showId, sellingQueueIndex, { from: userAddr });
+      let ticket = await ticketing.getTicketForBookingId(bookingId, {from : manager});
+      // console.log("old");
+      // console.log(ticket);
+
+      await ticketing.pay(bookingId, {from: userAddr, value: ticket.price});
+      await ticketing.removeFromUser(bookingId, {from: manager});
+      await ticketing.changeTicketInfo(userId, userAddr, bookingId, {from : manager});
+
+      // ticket = await ticketing.getTicketForBookingId(bookingId, {from : manager});
+      // console.log("new");
+      // console.log(ticket);
+
     } catch (err) {
       console.log(err);
       throw err;
@@ -178,4 +178,109 @@ module.exports = {
       message: "티켓 양도 받기 완료",
     });
   },
-};
+
+  // 일반 예매 취소
+  cancelBasicTicket : async function (bookingId, callback) {
+    const self = this;
+    await Ticketing.setProvider(self.web3.currentProvider);
+    const ticketing = await Ticketing.deployed();
+    
+    const ticket = await ticketing.getTicketForBookingId(bookingId, {from: manager}); 
+      
+    // typeof = number
+    let totalPrice = await calculatePrice(ticket);
+
+    try {
+      await ticketing.pay(bookingId, {from: manager, value: totalPrice});
+      await ticketing.removeFromUser(bookingId, {from: manager});
+      await ticketing.initializeTicketInfo(bookingId, {from : manager });
+
+      // let ticket = await ticketing.getTicketForBookingId(bookingId, {from: manager});
+      // console.log(ticket);
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+    callback({ success: true, message: "일반 예매 티켓 취소"});
+  },
+  
+  // 추첨제 티켓 취소
+  cancelLotteryTicket : async function (bookingId, callback) {
+    const self = this;
+    await Ticketing.setProvider(self.web3.currentProvider);
+    const ticketing = await Ticketing.deployed();
+
+    const ticket = await ticketing.getTicketForBookingId(bookingId, {from: manager}); 
+
+    let totalPrice = await calculatePrice(ticket);
+    try {
+      let ticket = await ticketing.getTicketForBookingId(bookingId, {from: manager});
+      console.log("old");
+      console.log(ticket);
+
+      await ticketing.pay(bookingId, {from: manager, value: totalPrice});
+      await ticketing.removeFromUser(bookingId, {from: manager});
+      await ticketing.changeOwner(bookingId, {from : manager});
+      await ticketing.resellTicket(bookingId, {from: manager});
+      
+      ticket = await ticketing.getTicketForBookingId(bookingId, {from: manager});
+      console.log("new");
+      console.log(ticket);
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+    callback({ success: true, message: "추첨 예매 티켓 취소"});
+
+  }
+}
+
+
+async function calculatePrice (ticket)  {
+ // 날짜 차이 구하기
+  const [[{showdate}]] = await db.query("select showdate from shows where showid = ?", [ticket.showId]);
+  console.log(typeof(showdate));
+  
+  const [[{dateGap}]] = await db.query("select datediff(?, now()) as dateGap", [showdate]);
+  console.log(dateGap);
+
+ // 환불 비율 구하기
+  let refundRatio;
+  if (dateGap >= 7) {
+    refundRatio = RefundRatio.Before7;
+  } else if (dateGap >= 3) {
+    refundRatio = RefundRatio.Between7and3;
+  } else if (dateGap >= 1) {
+    refundRatio = RefundRatio.Between3and1;
+  } else {
+    refundRatio = RefundRatio.NoRefund;
+  }
+
+  let totalPrice = ticket.price * refundRatio / 100;
+  return totalPrice;
+}
+
+async function makeData (result) {
+  console.log("makedata result");
+  console.log(result);
+  let array = [];
+  for (let i = 0; i < result.length; i++) {
+    try {
+      const [[rows]] = await Show.findById(result[i].showId);
+
+      rows.bookingId = result[i].bookingId;
+      rows.owner = result[i].owner;
+
+      let imgFile = fs.readFileSync(`./image/${rows.showid}.jpg`);
+      let encode = Buffer.from(imgFile).toString("base64");
+      rows.imgEncode = encode;
+
+      array.push(rows);
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  }
+
+  return array;
+}

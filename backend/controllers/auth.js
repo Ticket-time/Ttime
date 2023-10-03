@@ -7,12 +7,39 @@ const jwt = require('jsonwebtoken');
 const db = require('../util/database');
 const User = require('../models/user');
 
-// 토큰 검증
+
+exports.issueToken = async (req, res) => {
+    try{
+        const { id } = req.body;
+        const token = jwt.sign(
+            { id } 
+            ,process.env.JWT_SECRET_KEY
+            ,{expiresIn: '1d', issuer: '마이너송'});
+
+        console.log(`${id} 토큰 발급 완료`);
+
+        const [[{wallet}]] = await db.query("select wallet from user where id = ?", [id]);
+
+        return res.send({
+            success: true,
+            message: '토큰 발급 완료',
+            token : token,
+            wallet: wallet
+        });
+        
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            code: 500,
+            message: '서버 에러'
+        });
+    }
+};
+
 exports.verifyToken = (req, res, next) => {
     try {
         // 해독된 페이로드
         req.decoded = jwt.verify(req.headers.authorization, process.env.JWT_SECRET_KEY);
-        console.log(req.decoded);
         console.log("토큰 검증 성공");
         return next();
 
@@ -31,36 +58,6 @@ exports.verifyToken = (req, res, next) => {
     }
 }
 
-exports.issueToken = async (req, res) => {
-    try{
-        let sql = "select wallet from user where id = ?"
-        let params = [req.body.id];
-        const id = req.body.id;
-        console.log(id);
-        const token = await jwt.sign({ id }
-            ,process.env.JWT_SECRET_KEY
-            ,{expiresIn: '1d', issuer: '문정만크크크'});
-            console.log("토큰 발급 완료");
-
-        let result;
-            
-        try{
-            const rows = await db.query(sql, [id]);
-            console.log(rows[0][0]);
-            return res.send({success: true, code: 200, message: '토큰 발급 완료', token, wallet: rows[0][0].wallet});
-        } catch(err) {
-            console.log(err);
-            throw(err);
-        }
-        
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            code: 500,
-            message: '서버 에러'
-        });
-    }
-};
 
 exports.checkID = (req, res) => {
     const { userid } = req.body;

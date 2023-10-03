@@ -1,74 +1,50 @@
 require("dotenv").config();
-const db = require("../util/db2");
-const mysql = require("mysql");
+const db = require("../util/database");
 
 module.exports = {
-  random: function (showid) {
-    // 좌석 수 가져오기
-    let sql1 = "SELECT seats FROM shows WHERE showid=?;";
-    const sql1s = mysql.format(sql1, showid);
-    // apply 테이블에서 해당공연 응모자 가져오기
-    let sql2 = "SELECT userid FROM apply WHERE showid=?;";
-    const sql2s = mysql.format(sql2, showid);
+  random: async function (showid) {
+    
+    let [[{seats}]] = await db.query("SELECT seats FROM shows WHERE showid = ?", [showid]);
+    let [applicants] = await db.query("SELECT userid, isWin FROM apply WHERE showid = ?", [showid]);   // 1d json array
 
-    db.query(sql1s + sql2s, async (err, results) => {
-      if (err) {
-        console.log(err);
-        throw err;
+    let numOfSeats = seats;
+    let numOfApplicants = applicants.length;
+    let winnerArray = new Array(numOfSeats);  // index: 좌석, value: userid 
+
+    // 전원 당첨
+    if (numOfApplicants <= numOfSeats) {
+      for (let i = 0; i < numOfApplicants; seatid++) {
+        winnerArray[i] = applicants[i].userid;  
       }
-      let sql1s_result = JSON.parse(JSON.stringify(results[0]));
-      let sql2s_result = JSON.parse(JSON.stringify(results[1]));
+    }
+    else { // 일부 당첨
+      for (let i = 0; i < numOfSeats; i++) {
+        let pickIndex = Math.floor(Math.random() * numOfApplicants);
 
-      let numOfSeats = sql1s_result[0].seats;
-      let numOfApplicants = sql2s_result.length;
-      let checkArray = new Array(numOfApplicants).fill(false);
-      let winnerArray = new Array(numOfSeats);
-      let idx = 0;
+        if (applicants[pickIndex].isWin == true) {
+          console.log("이미 당첨.");
+          i--;
+        }
+        else {
+          console.log("아직 당첨되지 않은 사람입니다.");
+          applicants[pickIndex].isWin = true;
+          winnerArray[i] = applicants[pickIndex].userid;  // 당첨자 userid 저장
+        } 
 
-      // (응모자 수 > 좌석수)
-      if (numOfApplicants > numOfSeats) {
-        for (let i = 0; i < numOfSeats; i++) {
-          // 좌석수 만큼 반복
-          let pickIndex = Math.floor(Math.random() * numOfApplicants);
-          if (checkArray[pickIndex] == false) {
-            console.log("아직 당첨되지 않은 사람입니다.");
-            checkArray[pickIndex] = true;
-          } else {
-            // 다시 돌리기
-            console.log("이미 당첨된 사람입니다.");
-            i--;
-          }
-          console.log(sql2s_result[pickIndex].userid); // 당첨자 userid
-        }
-        for (let j = 0; j < checkArray.length; j++) {
-          //
-          if (checkArray[j] == true) {
-            console.log("당첨자 확인");
-            let userid = sql2s_result[j].userid;
-            console.log(userid);
-            winnerArray[idx++] = userid;
-          }
-        }
-        console.log(winnerArray);
-      } else {
-        // (응모자 수 <= 좌석 수)
-        winnerArray = new Array(numOfApplicants);
-        checkArray.fill(true);
-        idx = 0;
-        for (let k = 0; k < numOfApplicants; k++) {
-          userid = sql2s_result[k].userid;
-          winnerArray[idx++] = userid;
-        }
+      }
+    }
+      
+    let userid;
+    try{
+      for (let seatid = 1; seatid <= winnerArray.length; seatid++) {
+        userid = winnerArray[seatid - 1];
+        await db.execute("UPDATE apply SET isWin = 1, seatid = ? WHERE userid = ? and showid = ?", [seatid, userid, showid]);
       }
 
-      // winnerArray를 토대로 db에 isWin column update
-      winnerArray.forEach((userid) => {
-        const sql3 = "UPDATE apply SET isWin=1 WHERE userid=? and showid=?";
-        db.query(sql3, [userid, showid], (error, results) => {
-          if (error) throw error;
-          console.log(`Updated userid: ${userid}`);
-        });
-      });
-    });
-  },
-};
+    } catch(err) {
+      console.log(err);
+    }
+
+    console.log(winnerArray);
+  }   
+ };
