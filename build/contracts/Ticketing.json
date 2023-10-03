@@ -13807,9 +13807,7 @@
   "ast": {
     "absolutePath": "project:/contracts/Ticketing.sol",
     "exportedSymbols": {
-      "Ticketing": [
-        635
-      ]
+      "Ticketing": [635]
     },
     "id": 636,
     "license": "MIT",
@@ -13817,12 +13815,7 @@
     "nodes": [
       {
         "id": 1,
-        "literals": [
-          "solidity",
-          "^",
-          "0.8",
-          ".13"
-        ],
+        "literals": ["solidity", "^", "0.8", ".13"],
         "nodeType": "PragmaDirective",
         "src": "33:24:0"
       },
@@ -13834,9 +13827,7 @@
         "contractKind": "contract",
         "fullyImplemented": true,
         "id": 635,
-        "linearizedBaseContracts": [
-          635
-        ],
+        "linearizedBaseContracts": [635],
         "name": "Ticketing",
         "nameLocation": "70:9:0",
         "nodeType": "ContractDefinition",
@@ -14110,9 +14101,7 @@
                 "pathNode": {
                   "id": 22,
                   "name": "Ticket",
-                  "nameLocations": [
-                    "366:6:0"
-                  ],
+                  "nameLocations": ["366:6:0"],
                   "nodeType": "IdentifierPath",
                   "referencedDeclaration": 55,
                   "src": "366:6:0"
@@ -14413,9 +14402,7 @@
                   "pathNode": {
                     "id": 48,
                     "name": "TicketStatus",
-                    "nameLocations": [
-                      "1259:12:0"
-                    ],
+                    "nameLocations": ["1259:12:0"],
                     "nodeType": "IdentifierPath",
                     "referencedDeclaration": 35,
                     "src": "1259:12:0"
@@ -14498,9 +14485,7 @@
               "src": "1482:327:0",
               "statements": [
                 {
-                  "assignments": [
-                    65
-                  ],
+                  "assignments": [65],
                   "declarations": [
                     {
                       "constant": false,
@@ -14587,9 +14572,7 @@
                   "src": "1493:44:0"
                 },
                 {
-                  "assignments": [
-                    75
-                  ],
+                  "assignments": [75],
                   "declarations": [
                     {
                       "constant": false,
@@ -14613,9 +14596,7 @@
                           "pathNode": {
                             "id": 72,
                             "name": "Ticket",
-                            "nameLocations": [
-                              "1548:6:0"
-                            ],
+                            "nameLocations": ["1548:6:0"],
                             "nodeType": "IdentifierPath",
                             "referencedDeclaration": 55,
                             "src": "1548:6:0"
@@ -14679,9 +14660,7 @@
                           "pathNode": {
                             "id": 76,
                             "name": "Ticket",
-                            "nameLocations": [
-                              "1580:6:0"
-                            ],
+                            "nameLocations": ["1580:6:0"],
                             "nodeType": "IdentifierPath",
                             "referencedDeclaration": 55,
                             "src": "1580:6:0"
@@ -14728,9 +14707,7 @@
                     "src": "1641:129:0",
                     "statements": [
                       {
-                        "assignments": [
-                          94
-                        ],
+                        "assignments": [94],
                         "declarations": [
                           {
                             "constant": false,
@@ -14965,9 +14942,7 @@
                   },
                   "id": 110,
                   "initializationExpression": {
-                    "assignments": [
-                      84
-                    ],
+                    "assignments": [84],
                     "declarations": [
                       {
                         "constant": false,
@@ -15141,9 +15116,7 @@
                       "pathNode": {
                         "id": 59,
                         "name": "Ticket",
-                        "nameLocations": [
-                          "1466:6:0"
-                        ],
+                        "nameLocations": ["1466:6:0"],
                         "nodeType": "IdentifierPath",
                         "referencedDeclaration": 55,
                         "src": "1466:6:0"
@@ -15181,9 +15154,7 @@
               "src": "1893:362:0",
               "statements": [
                 {
-                  "assignments": [
-                    124
-                  ],
+                  "assignments": [124],
                   "declarations": [
                     {
                       "constant": false,
@@ -15270,9 +15241,7 @@
                   "src": "1914:48:0"
                 },
                 {
-                  "assignments": [
-                    134
-                  ],
+                  "assignments": [134],
                   "declarations": [
                     {
                       "constant": false,
@@ -15296,9 +15265,7 @@
                           "pathNode": {
                             "id": 131,
                             "name": "Ticket",
-                            "nameLocations": [
-                              "1973:6:0"
-                            ],
+                            "nameLocations": ["1973:6:0"],
                             "nodeType": "IdentifierPath",
                             "referencedDeclaration": 55,
                             "src": "1973:6:0"
@@ -15362,9 +15329,7 @@
                           "pathNode": {
                             "id": 135,
                             "name": "Ticket",
-                            "nameLocations": [
-                              "2012:6:0"
-                            ],
+                            "nameLocations": ["2012:6:0"],
                             "nodeType": "IdentifierPath",
                             "referencedDeclaration": 55,
                             "src": "2012:6:0"
@@ -15411,9 +15376,7 @@
                     "src": "2070:142:0",
                     "statements": [
                       {
-                        "assignments": [
-                          153
-                        ],
+                        "assignments": [153],
                         "declarations": [
                           {
                             "constant": false,
@@ -15648,9 +15611,7 @@
                   },
                   "id": 169,
                   "initializationExpression": {
-                    "assignments": [
-                      143
-                    ],
+                    "assignments": [143],
                     "declarations": [
                       {
                         "constant": false,
@@ -15823,9 +15784,7 @@
                       "pathNode": {
                         "id": 118,
                         "name": "Ticket",
-                        "nameLocations": [
-                          "1876:6:0"
-                        ],
+                        "nameLocations": ["1876:6:0"],
                         "nodeType": "IdentifierPath",
                         "referencedDeclaration": 55,
                         "src": "1876:6:0"
@@ -16007,9 +15966,7 @@
               "src": "2525:800:0",
               "statements": [
                 {
-                  "assignments": [
-                    197
-                  ],
+                  "assignments": [197],
                   "declarations": [
                     {
                       "constant": false,
@@ -16032,9 +15989,7 @@
                         "pathNode": {
                           "id": 195,
                           "name": "Ticket",
-                          "nameLocations": [
-                            "2538:6:0"
-                          ],
+                          "nameLocations": ["2538:6:0"],
                           "nodeType": "IdentifierPath",
                           "referencedDeclaration": 55,
                           "src": "2538:6:0"
@@ -16536,9 +16491,7 @@
                   "src": "3055:38:0"
                 },
                 {
-                  "assignments": [
-                    233
-                  ],
+                  "assignments": [233],
                   "declarations": [
                     {
                       "constant": false,
@@ -17005,9 +16958,7 @@
               "src": "3380:459:0",
               "statements": [
                 {
-                  "assignments": [
-                    264
-                  ],
+                  "assignments": [264],
                   "declarations": [
                     {
                       "constant": false,
@@ -17096,9 +17047,7 @@
                   "src": "3391:64:0"
                 },
                 {
-                  "assignments": [
-                    271
-                  ],
+                  "assignments": [271],
                   "declarations": [
                     {
                       "constant": false,
@@ -17301,10 +17250,7 @@
                       "id": 277,
                       "name": "require",
                       "nodeType": "Identifier",
-                      "overloadedDeclarations": [
-                        4294967278,
-                        4294967278
-                      ],
+                      "overloadedDeclarations": [4294967278, 4294967278],
                       "referencedDeclaration": 4294967278,
                       "src": "3553:7:0",
                       "typeDescriptions": {
@@ -17635,9 +17581,7 @@
                   },
                   "id": 317,
                   "initializationExpression": {
-                    "assignments": [
-                      288
-                    ],
+                    "assignments": [288],
                     "declarations": [
                       {
                         "constant": false,
@@ -17968,9 +17912,7 @@
                     "pathNode": {
                       "id": 329,
                       "name": "Ticket",
-                      "nameLocations": [
-                        "3915:6:0"
-                      ],
+                      "nameLocations": ["3915:6:0"],
                       "nodeType": "IdentifierPath",
                       "referencedDeclaration": 55,
                       "src": "3915:6:0"
@@ -18000,9 +17942,7 @@
               "src": "4075:121:0",
               "statements": [
                 {
-                  "assignments": [
-                    344
-                  ],
+                  "assignments": [344],
                   "declarations": [
                     {
                       "constant": false,
@@ -18309,9 +18249,7 @@
               "src": "4368:392:0",
               "statements": [
                 {
-                  "assignments": [
-                    370
-                  ],
+                  "assignments": [370],
                   "declarations": [
                     {
                       "constant": false,
@@ -18998,10 +18936,7 @@
                       "id": 416,
                       "name": "require",
                       "nodeType": "Identifier",
-                      "overloadedDeclarations": [
-                        4294967278,
-                        4294967278
-                      ],
+                      "overloadedDeclarations": [4294967278, 4294967278],
                       "referencedDeclaration": 4294967278,
                       "src": "4836:7:0",
                       "typeDescriptions": {
@@ -19332,9 +19267,7 @@
                   },
                   "id": 456,
                   "initializationExpression": {
-                    "assignments": [
-                      427
-                    ],
+                    "assignments": [427],
                     "declarations": [
                       {
                         "constant": false,
@@ -19581,9 +19514,7 @@
               "src": "5292:633:0",
               "statements": [
                 {
-                  "assignments": [
-                    475
-                  ],
+                  "assignments": [475],
                   "declarations": [
                     {
                       "constant": false,
@@ -19606,9 +19537,7 @@
                         "pathNode": {
                           "id": 473,
                           "name": "Ticket",
-                          "nameLocations": [
-                            "5313:6:0"
-                          ],
+                          "nameLocations": ["5313:6:0"],
                           "nodeType": "IdentifierPath",
                           "referencedDeclaration": 55,
                           "src": "5313:6:0"
@@ -19998,9 +19927,7 @@
                   "src": "5610:33:0"
                 },
                 {
-                  "assignments": [
-                    510
-                  ],
+                  "assignments": [510],
                   "declarations": [
                     {
                       "constant": false,
@@ -20442,9 +20369,7 @@
               "src": "6043:357:0",
               "statements": [
                 {
-                  "assignments": [
-                    543
-                  ],
+                  "assignments": [543],
                   "declarations": [
                     {
                       "constant": false,
@@ -20467,9 +20392,7 @@
                         "pathNode": {
                           "id": 541,
                           "name": "Ticket",
-                          "nameLocations": [
-                            "6054:6:0"
-                          ],
+                          "nameLocations": ["6054:6:0"],
                           "nodeType": "IdentifierPath",
                           "referencedDeclaration": 55,
                           "src": "6054:6:0"
@@ -20819,9 +20742,7 @@
                   "src": "6210:44:0"
                 },
                 {
-                  "assignments": [
-                    573
-                  ],
+                  "assignments": [573],
                   "declarations": [
                     {
                       "constant": false,
@@ -21104,9 +21025,7 @@
               "src": "6527:259:0",
               "statements": [
                 {
-                  "assignments": [
-                    597
-                  ],
+                  "assignments": [597],
                   "declarations": [
                     {
                       "constant": false,
@@ -21129,9 +21048,7 @@
                         "pathNode": {
                           "id": 595,
                           "name": "Ticket",
-                          "nameLocations": [
-                            "6539:6:0"
-                          ],
+                          "nameLocations": ["6539:6:0"],
                           "nodeType": "IdentifierPath",
                           "referencedDeclaration": 55,
                           "src": "6539:6:0"
