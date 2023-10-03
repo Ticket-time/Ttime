@@ -24,16 +24,28 @@ app.use("/shows", showRouter); // 전체 공연
 app.use(authRouter);
 app.use("/tx", txRouter);
 
-
+app.post("/cancel", (req, res) => {
+  console.log("/cancel");
+  let bookingId = req.body.bookingId;
+  truffle_connect.cancelReselling(bookingId, function (result) {
+    res.send(result);
+  });
+});
 
 // @완료
 app.post("/payTicket", (req, res) => {
   console.log("**** POST /payTicket ****");
   const { showId, userId, ticketOwner, numberOfSeats } = req.body;
 
-  truffle_connect.issueTicket(showId, ticketOwner, numberOfSeats, userId, function (result) {
-    res.send(result);
-  });
+  truffle_connect.issueTicket(
+    showId,
+    ticketOwner,
+    numberOfSeats,
+    userId,
+    function (result) {
+      res.send(result);
+    }
+  );
 });
 
 // @완료
@@ -45,7 +57,6 @@ app.post("/home", (req, res) => {
   });
 });
 
-
 app.post("/createShow", (req, res) => {
   console.log("**** POST /createShow ****");
   let showOwner = req.body.showOwner;
@@ -55,7 +66,6 @@ app.post("/createShow", (req, res) => {
     res.send({ success: true, message: result });
   });
 });
-
 
 app.listen(port, () => {
   // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)

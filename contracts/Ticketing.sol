@@ -160,7 +160,17 @@ contract Ticketing {
         index = ticket.indexForSellingBookingIdList;
         removeFromShow(index, ticket.showId);
     }
-
+    
+    // 양도 중 취소
+    function cancelReselling(uint _bookingId) public {
+        Ticket storage ticket = ticketForBookingId[_bookingId];
+        // selling List 에서 삭제
+        uint index = ticket.indexForSellingBookingIdList;
+        removeFromShow(index, ticket.showId);
+        // ticket 상태 변경
+        ticket.status = TicketStatus.Sold;
+        ticket.indexForSellingBookingIdList = 0;
+    }
 
 
 
