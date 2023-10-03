@@ -150,7 +150,7 @@ module.exports = {
     callback({ success: true, message: "거래 탭에 티켓 추가 완료" });
   },
 
-  // @완료 {from : owner }로 해야 됨
+  // @완료 
   buyTicketForHandOver: async function (userId, userAddr, bookingId, callback) {
     const self = this;
     await Ticketing.setProvider(self.web3.currentProvider);
@@ -203,7 +203,8 @@ module.exports = {
     }
     callback({ success: true, message: "일반 예매 티켓 취소"});
   },
-
+  
+  // 추첨제 티켓 취소
   cancelLotteryTicket : async function (bookingId, callback) {
     const self = this;
     await Ticketing.setProvider(self.web3.currentProvider);

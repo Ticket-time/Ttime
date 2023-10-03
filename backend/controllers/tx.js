@@ -22,16 +22,15 @@ module.exports = {
 // 거래탭에 올린다는 함수
   resell: (req, res) => {
     // ticketId = bookingId
-    const { bookingId, userAddr } = req.body;
+    const { bookingId } = req.body;
 
     truffle_connect.resellTicket(bookingId, function (result) {
       res.send(result);
     });
   },
 
-
-// @완료 - 거래탭에 올라온 "양도" 티켓을 구매하는 함수
-  handOver: (req, res) => {
+// @완료 - 거래탭에 올라온 티켓을 구매하는 함수
+  buyTicket: (req, res) => {
     const { userId, bookingId, userAddr } = req.body;
 
     truffle_connect.buyTicketForHandOver(userId, userAddr, bookingId, function (result) {

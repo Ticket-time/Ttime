@@ -26,7 +26,7 @@ module.exports = class User {
 
     // 응모 내역 확인 
     static getApplyList(userid){
-        return db.execute("SELECT s.showid, s.showname, s.showdate, s.ticketPrice, s.place FROM shows s, apply a WHERE s.showid = a.showid and a.userid = ?", [userid]);
+        return db.execute("SELECT s.showid, s.showname, s.showdate, s.ticketPrice, s.place, s.paystart, s.payend FROM shows s, apply a WHERE s.showid = a.showid and a.userid = ?", [userid]);
     }
 
     static isApplied(userid, showid) {
