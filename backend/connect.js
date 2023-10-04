@@ -34,8 +34,8 @@ module.exports = {
     }
   },
 
-  // @완료
-  issueTicket: async function (
+  // issueLotteryTicket
+  issueLotteryTicket: async function (
     showId,
     ticketOwner,
     numberOfSeats,
@@ -47,10 +47,13 @@ module.exports = {
       await Ticketing.setProvider(self.web3.currentProvider);
       const ticketing = await Ticketing.deployed();
 
+      
       const [[{ ticketPrice }]] = await db.query(
         "select ticketPrice from shows where showid = ?",
         [showId]
       );
+      
+      // 추첨제 발급
       let totalPrice = web3.toWei(ticketPrice) * numberOfSeats;
       console.log("totalPrice = " + totalPrice);
 
@@ -102,6 +105,89 @@ module.exports = {
     }
   },
 
+  issueBasicTicket: async function (
+    showId,
+    ticketOwner,
+    seats,
+    userId,
+    callback
+  ) {
+    try {
+      const self = this;
+      await Ticketing.setProvider(self.web3.currentProvider);
+      const ticketing = await Ticketing.deployed();
+
+      
+      const [[show]] = await db.query(
+        "select ticketPrice, seats from shows where showid = ?",
+        [showId]
+      );
+      
+      let numberOfSeats = seats.length;
+      let totalPrice = web3.toWei(show.ticketPrice) * numberOfSeats;
+      console.log("totalPrice = " + totalPrice);
+
+      const result = await ticketing.issueTicket(
+        showId,
+        ticketOwner,
+        numberOfSeats,
+        userId,
+        {
+          from: ticketOwner,
+          value: totalPrice,
+        }
+      );
+
+      
+      console.log(`check receipt`);
+      
+      let tx = result.tx;
+      let bookingId;
+      // log 확인
+      for (let i = 0; i < result.logs.length; i++) {
+        let log = result.logs[i];
+        if (log.event == "ISSUE_TICKET") {
+          // We found the event!
+          let param1 = log.args._showId;
+          if (showId == param1) {
+            bookingId = log.args._bookingId;
+          }
+          break;
+        }
+      }
+    } catch (e) {
+      console.log(e);
+      callback({
+        success: false,
+        data:[],
+      });
+    }
+
+
+    // insert seat table 
+    // userid bookingid showid seatid 
+    let isReserved = new Array(row.seats).fill(false); // 좌석수
+    try{
+      for (let i = 0; i < numberOfSeats; i++){
+        isReserved[seats[i]] = true;
+        await db.query("insert into seat values()", []);
+      }
+    } catch(err) {
+      console.log(err);
+    }
+
+    let seatData = [];
+    for(let i = 0; i < row.seats; i++) {
+      seatData.push({
+        location : i + 1,
+        state : isReserved[i]
+      })
+    }
+    // 웹소켓 부분 
+
+
+  },
+  
   // @완료
   getMyTicket: async function (userAddr, callback) {
     const self = this;
@@ -319,6 +405,7 @@ async function makeData(result) {
     try {
       const [[rows]] = await Show.findById(result[i].showId);
 
+      console.log(result);
       rows.bookingId = result[i].bookingId;
       rows.owner = result[i].owner;
       rows.status = result[i].status;

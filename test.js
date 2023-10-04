@@ -41,11 +41,16 @@
   
 // const timeUntilMidnight = nextMidnight.getTime() - now.getTime();
 //   console.log("자정까지 시간(ms): " + timeUntilMidnight);
-const db = require("./backend/util/database");
+// const db = require("./backend/util/database");
 
-const rand = require("./backend/controllers/random");
-rand.random(1);
+// const rand = require("./backend/controllers/random");
+// rand.random(1);
 
 
+async function a(seats) {
+    console.log(seats);
+}
+
+a([1, 2, 3]);
 
 
