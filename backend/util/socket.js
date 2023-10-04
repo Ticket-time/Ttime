@@ -12,7 +12,6 @@ module.exports =  (server) => {
            const {showId, ticketOwner, userId} = data;
             try {
                 let bookingId = await truffle_connect.issueBasicTicket(data);
-                
 
                 for(let i = 0; i < seats.length; i++){
                     console.log(`${bookingId}, ${showId}, ${seats[i]}`);
@@ -31,23 +30,19 @@ module.exports =  (server) => {
             //io.emit("reservedSeat", []);
             // 에러가 나면 어케 전달을 해야되는지 모르겠음 
         }
+    })
 
-        })
-
+        // 일반 예매 취소 
         socket.on("unreserveSeat", async (data) => {
             console.log(data);
-            Seat.delete(data.showid, data.userid)
-            .then(() => {
-                console.log("예매 취소 완료");
-                Seat.getSeats(data.showid)
-                .then(([rows]) => {
-                    console.log(rows);
-                    io.emit("unreservedSeat", rows);
-                }).catch(err => console.log(err));
-            }).catch(err => console.log(err));
+            const {bookingId, numberOfSeats} = data;
+            // seat 테이블에서 삭제 먼저 하고 
+            // cancelTicket    
+            await db.query("delete from seat where bookingId = ?", [bookingId]);
+
+
+            io.emit("unreservedSeat", rows);
         });
-
-
     });
 };
 
@@ -55,8 +50,14 @@ async function makeSeatData(showId, reservedSeats) {
     const [[{seats}]] = await db.query("select seats from shows where showid = ?", [showId]);
     
     let seatId;
+  
+    let [oldReservedSeats] = await db.query("select seatid from seat where showid = ?", [showId]);
     let isReserved = new Array(seats).fill(false); // 좌석수
 
+    for(let i = 0; i < oldReservedSeats.length; i++) {
+        seatId = oldReservedSeats[i].seatid;
+        isReserved[seatId - 1] = true;
+    }
     for (let i = 0; i < reservedSeats.length; i++){
         seatId = reservedSeats[i];
         isReserved[seatId - 1] = true;
