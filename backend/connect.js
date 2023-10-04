@@ -87,7 +87,7 @@ module.exports = {
         "update seat set payment = 1 where userid = ? and showid = ?",
         [userId, showId]
       );
-      
+
       const [[{seatid}]] = await db.query(
         "select seatid from apply where showid = ? and bookingId = ?",
         [showId, bookingId]
@@ -253,7 +253,7 @@ module.exports = {
   },
 
   // 일반 예매 취소
-  cancelBasicTicket: async function (bookingId, callback) {
+  cancelBasicTicket: async function (bookingId) {
     const self = this;
     await Ticketing.setProvider(self.web3.currentProvider);
     const ticketing = await Ticketing.deployed();
@@ -276,7 +276,6 @@ module.exports = {
       console.log(err);
       throw err;
     }
-    callback({ success: true, message: "일반 예매 티켓 취소" });
   },
 
   // 추첨제 티켓 취소

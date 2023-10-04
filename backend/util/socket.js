@@ -35,13 +35,15 @@ module.exports =  (server) => {
         // 일반 예매 취소 
         socket.on("unreserveSeat", async (data) => {
             console.log(data);
-            const {bookingId, numberOfSeats} = data;
-            // seat 테이블에서 삭제 먼저 하고 
-            // cancelTicket    
+            const {bookingId, showId} = data;
             await db.query("delete from seat where bookingId = ?", [bookingId]);
+            // cancelTicket    
+            truffle_connect.cancelBasicTicket(bookingId);
 
-
-            io.emit("unreservedSeat", rows);
+            let seatData = await makeSeatData(showId, []);
+            console.log(seatData);
+            
+            io.emit("unreservedSeat", seatData);
         });
     });
 };
