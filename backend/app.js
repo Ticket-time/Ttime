@@ -24,14 +24,6 @@ app.use("/shows", showRouter); // 전체 공연
 app.use(authRouter);
 app.use("/tx", txRouter);
 
-app.post("/cancel", (req, res) => {
-  console.log("/cancel");
-  let bookingId = req.body.bookingId;
-  truffle_connect.cancelReselling(bookingId, function (result) {
-    res.send(result);
-  });
-});
-
 // const rand = require("./controllers/random.js");
 // // @ test
 // app.post("/random", (req, res) => {
