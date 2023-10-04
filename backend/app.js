@@ -7,6 +7,7 @@ const search = require("./controllers/search.js");
 const truffle_connect = require("./connect.js");
 const bodyParser = require("body-parser");
 const schedule = require("node-schedule");
+const webSocket = require("./util/socket");
 
 const userRouter = require("./routes/user.js");
 const showRouter = require("./routes/show.js");
@@ -58,6 +59,22 @@ app.post("/home", (req, res) => {
   });
 });
 
+app.post("/payBasicTicket", (req, res) => {
+  console.log("**** POST /pay Basic Ticket ****");
+  const { showId, userId, ticketOwner, seats } = req.body;
+
+  truffle_connect.issueBasicTicket(
+    showId,
+    ticketOwner,
+    seats,
+    userId,
+    function (result) {
+      res.send(result);
+    }
+  );
+});
+
+
 app.post("/createShow", (req, res) => {
   console.log("**** POST /createShow ****");
   let showOwner = req.body.showOwner;
@@ -68,7 +85,8 @@ app.post("/createShow", (req, res) => {
   });
 });
 
-app.listen(port, () => {
+
+const server = app.listen(port, () => {
   // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
   truffle_connect.web3 = new Web3(
     new Web3.providers.HttpProvider("http://127.0.0.1:8545")
@@ -96,3 +114,5 @@ app.listen(port, () => {
 
   console.log("Express Listening at http://localhost:" + port);
 });
+
+webSocket(server);
