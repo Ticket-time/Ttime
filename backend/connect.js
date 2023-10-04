@@ -11,10 +11,10 @@ const RefundRatio = {
   Before7: 100,
   Between7and3: 80,
   Between3and1: 60,
-  NoRefund: 0
-}
+  NoRefund: 0,
+};
 
-let manager = '0x246d89578e515F63DeCC1CEa8bD1df571aE3a705';
+let manager = "0x246d89578e515F63DeCC1CEa8bD1df571aE3a705";
 
 module.exports = {
   createShow: async function (showOwner, ticketPriceEth, callback) {
@@ -35,26 +35,44 @@ module.exports = {
   },
 
   // @완료
-  issueTicket: async function (showId, ticketOwner, numberOfSeats, userId, callback) {
+  issueTicket: async function (
+    showId,
+    ticketOwner,
+    numberOfSeats,
+    userId,
+    callback
+  ) {
     try {
       const self = this;
       await Ticketing.setProvider(self.web3.currentProvider);
       const ticketing = await Ticketing.deployed();
 
-      const [[{ticketPrice}]] = await db.query("select ticketPrice from shows where showid = ?", [showId]);
+      const [[{ ticketPrice }]] = await db.query(
+        "select ticketPrice from shows where showid = ?",
+        [showId]
+      );
       let totalPrice = web3.toWei(ticketPrice) * numberOfSeats;
       console.log("totalPrice = " + totalPrice);
 
-      const result = await ticketing.issueTicket(showId, ticketOwner, numberOfSeats, userId, {
-        from: ticketOwner,
-        value: totalPrice
-      });
+      const result = await ticketing.issueTicket(
+        showId,
+        ticketOwner,
+        numberOfSeats,
+        userId,
+        {
+          from: ticketOwner,
+          value: totalPrice,
+        }
+      );
 
-      // 추첨제라면 응모 table 업데이트 
-      const [[{isLottery}]] = await db.query("select isLottery from shows where showid = ?", [showId]);
+      // 추첨제라면 응모 table 업데이트
+      const [[{ isLottery }]] = await db.query(
+        "select isLottery from shows where showid = ?",
+        [showId]
+      );
 
-      if (isLottery){
-       await db.query(
+      if (isLottery) {
+        await db.query(
           "update apply set payment = 1 where showid = ? and userid = ?",
           [showId, userId]
         );
@@ -70,12 +88,14 @@ module.exports = {
           // We found the event!
           let param1 = log.args._showId;
           if (showId == param1) {
-            callback({ success: true, data: { tx: tx,  bookingId: log.args._bookingId}});
+            callback({
+              success: true,
+              data: { tx: tx, bookingId: log.args._bookingId },
+            });
           }
           break;
         }
       }
-    
     } catch (e) {
       console.log(e);
       callback("발급 오류");
@@ -88,7 +108,7 @@ module.exports = {
     await Ticketing.setProvider(self.web3.currentProvider);
     const ticketing = await Ticketing.deployed();
 
-    // 2d-arr 
+    // 2d-arr
     const result = await ticketing.getMyTicket(userAddr);
 
     if (result.length === 0) {
@@ -98,15 +118,14 @@ module.exports = {
         data: [],
       });
     }
-    
+
     let array = await makeData(result);
-    
+
     callback({
       success: true,
       message: "my ticket 가져오기 성공",
       data: array,
     });
-    
   },
 
   // @완료
@@ -125,7 +144,7 @@ module.exports = {
         data: [],
       });
     }
-   
+
     let array = await makeData(result);
 
     callback({
@@ -150,25 +169,28 @@ module.exports = {
     callback({ success: true, message: "거래 탭에 티켓 추가 완료" });
   },
 
-  // @완료 
+  // @완료
   buyTicketForHandOver: async function (userId, userAddr, bookingId, callback) {
     const self = this;
     await Ticketing.setProvider(self.web3.currentProvider);
     const ticketing = await Ticketing.deployed();
 
     try {
-      let ticket = await ticketing.getTicketForBookingId(bookingId, {from : manager});
+      let ticket = await ticketing.getTicketForBookingId(bookingId, {
+        from: manager,
+      });
       // console.log("old");
       // console.log(ticket);
 
-      await ticketing.pay(bookingId, {from: userAddr, value: ticket.price});
-      await ticketing.removeFromUser(bookingId, {from: manager});
-      await ticketing.changeTicketInfo(userId, userAddr, bookingId, {from : manager});
+      await ticketing.pay(bookingId, { from: userAddr, value: ticket.price });
+      await ticketing.removeFromUser(bookingId, { from: manager });
+      await ticketing.changeTicketInfo(userId, userAddr, bookingId, {
+        from: manager,
+      });
 
       // ticket = await ticketing.getTicketForBookingId(bookingId, {from : manager});
       // console.log("new");
       // console.log(ticket);
-
     } catch (err) {
       console.log(err);
       throw err;
@@ -180,20 +202,22 @@ module.exports = {
   },
 
   // 일반 예매 취소
-  cancelBasicTicket : async function (bookingId, callback) {
+  cancelBasicTicket: async function (bookingId, callback) {
     const self = this;
     await Ticketing.setProvider(self.web3.currentProvider);
     const ticketing = await Ticketing.deployed();
-    
-    const ticket = await ticketing.getTicketForBookingId(bookingId, {from: manager}); 
-      
+
+    const ticket = await ticketing.getTicketForBookingId(bookingId, {
+      from: manager,
+    });
+
     // typeof = number
     let totalPrice = await calculatePrice(ticket);
 
     try {
-      await ticketing.pay(bookingId, {from: manager, value: totalPrice});
-      await ticketing.removeFromUser(bookingId, {from: manager});
-      await ticketing.initializeTicketInfo(bookingId, {from : manager });
+      await ticketing.pay(bookingId, { from: manager, value: totalPrice });
+      await ticketing.removeFromUser(bookingId, { from: manager });
+      await ticketing.initializeTicketInfo(bookingId, { from: manager });
 
       // let ticket = await ticketing.getTicketForBookingId(bookingId, {from: manager});
       // console.log(ticket);
@@ -201,50 +225,77 @@ module.exports = {
       console.log(err);
       throw err;
     }
-    callback({ success: true, message: "일반 예매 티켓 취소"});
+    callback({ success: true, message: "일반 예매 티켓 취소" });
   },
-  
+
   // 추첨제 티켓 취소
-  cancelLotteryTicket : async function (bookingId, callback) {
+  cancelLotteryTicket: async function (bookingId, callback) {
     const self = this;
     await Ticketing.setProvider(self.web3.currentProvider);
     const ticketing = await Ticketing.deployed();
 
-    const ticket = await ticketing.getTicketForBookingId(bookingId, {from: manager}); 
+    const ticket = await ticketing.getTicketForBookingId(bookingId, {
+      from: manager,
+    });
 
     let totalPrice = await calculatePrice(ticket);
     try {
-      let ticket = await ticketing.getTicketForBookingId(bookingId, {from: manager});
+      let ticket = await ticketing.getTicketForBookingId(bookingId, {
+        from: manager,
+      });
       console.log("old");
       console.log(ticket);
 
-      await ticketing.pay(bookingId, {from: manager, value: totalPrice});
-      await ticketing.removeFromUser(bookingId, {from: manager});
-      await ticketing.changeOwner(bookingId, {from : manager});
-      await ticketing.resellTicket(bookingId, {from: manager});
-      
-      ticket = await ticketing.getTicketForBookingId(bookingId, {from: manager});
+      await ticketing.pay(bookingId, { from: manager, value: totalPrice });
+      await ticketing.removeFromUser(bookingId, { from: manager });
+      await ticketing.changeOwner(bookingId, { from: manager });
+      await ticketing.resellTicket(bookingId, { from: manager });
+
+      ticket = await ticketing.getTicketForBookingId(bookingId, {
+        from: manager,
+      });
       console.log("new");
       console.log(ticket);
     } catch (err) {
       console.log(err);
       throw err;
     }
-    callback({ success: true, message: "추첨 예매 티켓 취소"});
+    callback({ success: true, message: "추첨 예매 티켓 취소" });
+  },
 
-  }
-}
+  cancelReselling: async function (bookingId, callback) {
+    const self = this;
+    await Ticketing.setProvider(self.web3.currentProvider);
+    const ticketing = await Ticketing.deployed();
 
+    let manager = "0x246d89578e515F63DeCC1CEa8bD1df571aE3a705";
+    try {
+      await ticketing.cancelReselling(bookingId, {
+        from: manager,
+      });
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+    callback({ success: true, message: "양도 취소 완료" });
+  },
+};
 
-async function calculatePrice (ticket)  {
- // 날짜 차이 구하기
-  const [[{showdate}]] = await db.query("select showdate from shows where showid = ?", [ticket.showId]);
-  console.log(typeof(showdate));
-  
-  const [[{dateGap}]] = await db.query("select datediff(?, now()) as dateGap", [showdate]);
+async function calculatePrice(ticket) {
+  // 날짜 차이 구하기
+  const [[{ showdate }]] = await db.query(
+    "select showdate from shows where showid = ?",
+    [ticket.showId]
+  );
+  console.log(typeof showdate);
+
+  const [[{ dateGap }]] = await db.query(
+    "select datediff(?, now()) as dateGap",
+    [showdate]
+  );
   console.log(dateGap);
 
- // 환불 비율 구하기
+  // 환불 비율 구하기
   let refundRatio;
   if (dateGap >= 7) {
     refundRatio = RefundRatio.Before7;
@@ -256,11 +307,11 @@ async function calculatePrice (ticket)  {
     refundRatio = RefundRatio.NoRefund;
   }
 
-  let totalPrice = ticket.price * refundRatio / 100;
+  let totalPrice = (ticket.price * refundRatio) / 100;
   return totalPrice;
 }
 
-async function makeData (result) {
+async function makeData(result) {
   console.log("makedata result");
   console.log(result);
   let array = [];

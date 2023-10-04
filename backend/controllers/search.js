@@ -6,33 +6,36 @@ const app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-exports.insertWord =  (req, res, next) => {
+exports.insertWord =  async (req, res, next) => {
     let { keyword } = req.body;
     const date = new Date();
     keyword = keyword.trim();
+    console.log(`search word: ${keyword}`);
+
     if(keyword === "") {
         return next();
     }
+
     Search.insert(keyword, date)
-    .then(([rows]) => {
+    .then(() => {
         return next();
     })
     .catch(err => console.log(err));
-    
 }
 
-
 // 랭킹 재조정, 이전 검색 기록 삭제 
-exports.deleteWord = () => {
+exports.deleteWord = async () => {
     
     let date = new Date();
     console.log('search controllers에서 실행' + date);
 
-    Search.delete(date)
-    .then(([rows]) => {
-        console.log('삭제 완료');
-    })
-    .catch(err => console.log(err));
+    try{
+        await Search.delete(date);
+    } catch(err) {
+        console.log(err);
+    }
+
+    console.log("검색어 삭제 완료");
 }
 
 exports.rank = (req, res) => {
