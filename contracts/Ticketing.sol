@@ -17,7 +17,7 @@ contract Ticketing {
         Sold,   // 판매 완료
 		Canceled, // 취소표
         OnSale,  // 양도표
-        Expired  // 공연 날짜 지나서 폐기됨
+        Expired  // 공연 날짜 지나서 폐기됨 or 일반 예매 취소로 발급한 티켓 폐기
     }
 
      // 예매 개념 - 누가, 어떤 공연을, 몇장, 좌석, 상태(판매 중인지 등)
@@ -89,8 +89,6 @@ contract Ticketing {
         bookingID++;
     }
 
-
-
     function removeFromUser(uint _bookingId) public{
         address payable _refunder = ticketForBookingId[_bookingId].owner;
         uint _index = ticketForBookingId[_bookingId].indexForBookingIdList;
@@ -107,12 +105,7 @@ contract Ticketing {
         return ticketForBookingId[_bookingId];
     }
 
-    function refund(address payable _refunder, uint _refundRatio) public payable {
-        uint refundPrice = msg.value * _refundRatio / 100;
-         _refunder.transfer(refundPrice);
-    }
-
-    // @ 양도표 판매자에게 돈 송금
+    // @ 판매자에게 돈 송금
     function pay(uint _bookingId) public payable {
         address payable oldOwner = ticketForBookingId[_bookingId].owner;
         oldOwner.transfer(msg.value);
@@ -120,7 +113,8 @@ contract Ticketing {
 
     //양도 = 거래탭에 올리겠다는 함수
     event RESELL(uint indexed _showId, uint indexed _bookingId);
-    function resellTicket(uint _showId, uint _bookingId) public { 
+    function resellTicket(uint _bookingId) public { 
+        uint _showId = ticketForBookingId[_bookingId].showId;
         sellingBookingIdList[_showId].push(_bookingId);
 
         // 티켓 상태 변경
@@ -129,7 +123,6 @@ contract Ticketing {
 
         emit RESELL(_showId, _bookingId);
     }
-
 
     function removeFromShow(uint _index, uint _showId) public{
         require(_index < sellingBookingIdList[_showId].length, "index out of bound");
@@ -141,7 +134,7 @@ contract Ticketing {
     }
 
     // 거래탭에서 티켓 구매
-    function changeTicketInfo(address _buyer, string calldata _userId, uint _bookingId) public payable {
+    function changeTicketInfo(string calldata _userId, address _buyer, uint _bookingId) public payable {
         
         Ticket storage ticket = ticketForBookingId[_bookingId];
 
@@ -172,54 +165,27 @@ contract Ticketing {
         ticket.indexForSellingBookingIdList = 0;
     }
 
+    // 추첨제 취소표의 소유자를 매니저로 변경 
+    function changeOwner(uint _bookingId) public {
+        Ticket storage ticket = ticketForBookingId[_bookingId];
+        ticket.owner = payable(msg.sender);
+        ticket.userId = "manager";
+        
+        bookingIdList[ticket.owner].push(_bookingId);    
 
+        uint index = bookingIdList[ticket.owner].length - 1;
+        ticketForBookingId[bookingID].indexForBookingIdList = index;
+    }
 
+    // 일반 예매 취소표 정보 초기화 (티켓 만료)
+    function initializeTicketInfo(uint _bookingId) public {
+         Ticket storage ticket = ticketForBookingId[_bookingId];
 
-
-
-    // // 일반 예매 취소
-    // function cancelForBasic (uint _bookingId, uint _refundRatio) public payable {
-    //     uint index = ticketForBookingId[_bookingId].indexForBookingIdList;
-
-    //     removeFromUser(index, msg.sender);
-    //     refund(payable(msg.sender), _refundRatio, {from: owner});
-    // }
-
-
-    // // 추첨제 취소
-    // function cancelForLottery (uint _bookingId, uint _refundRatio) public payable {
-    //     uint index = ticketForBookingId[_bookingId].indexForBookingIdList;
-    //     uint showId = ticketForBookingId[_bookingId].showId;
-
-    //     removeFromUser(index, msg.sender);
-    //     refund(payable(msg.sender), _refundRatio, {from: owner});
-    //     resellTicket(showId, _bookingId);
-    // }
-
-    // // 추첨제 취소표 구매 
-    // function buyTicketForCancelLottery (string calldata _userId, uint _bookingId) public payable {
-    //     uint price = ticketForBookingId[_bookingId].price;
-    //     owner.transfer(price);
-    //     changeTicketInfo(msg.sender, _userId, _bookingId);
-    // }
-
-
-    // // 양도
-    // function handOver (uint _bookingId) public payable {
-    //     uint showId = ticketForBookingId[_bookingId].showId;
-    //     resellTicket(showId, _bookingId);
-    // }
-
-
-    // // 양도 티켓 구매
-    // function buyTicketForHandOver (string calldata _userId, uint _bookingId) public payable {
-    //     uint index = ticketForBookingId[_bookingId].indexForBookingIdList;
-    //     address payable oldOwner = ticketForBookingId[_bookingId].owner;
-
-    //     removeFromUser(index, oldOwner);
-    //     uint price = ticketForBookingId[_bookingId].price;
-    //     oldOwner.transfer(price);
-    //     changeTicketInfo(msg.sender, _userId, _bookingId);
-    // }
+        ticket.owner = owner;
+        ticket.userId = "Expried Ticket";
+        ticket.status = TicketStatus.Expired;
+        ticket.numberOfSeats = 0;
+        ticket.price = 0;
+    }
 
 }
