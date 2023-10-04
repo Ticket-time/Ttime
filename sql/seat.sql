@@ -3,7 +3,7 @@ create table seat(
     showid int,
     seatid int,
 
-    constraint seat_pk primary key(bookingid, showid, seatid),
+    constraint seat_pk primary key(showid, seatid),
     foreign key(showid) references shows(showid)
 );
 
