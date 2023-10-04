@@ -17,6 +17,10 @@ const RefundRatio = {
 let manager = "0x246d89578e515F63DeCC1CEa8bD1df571aE3a705";
 
 module.exports = {
+  test: function(data) {
+    console.log("this is truffle connect");
+    console.log(data);
+  }, 
   createShow: async function (showOwner, ticketPriceEth, callback) {
     try {
       const self = this;
@@ -35,7 +39,7 @@ module.exports = {
   },
 
   // issueLotteryTicket
-  issueLotteryTicket: async function (
+  issueTicket: async function (
     showId,
     ticketOwner,
     numberOfSeats,
@@ -47,7 +51,6 @@ module.exports = {
       await Ticketing.setProvider(self.web3.currentProvider);
       const ticketing = await Ticketing.deployed();
 
-      
       const [[{ ticketPrice }]] = await db.query(
         "select ticketPrice from shows where showid = ?",
         [showId]
@@ -67,87 +70,11 @@ module.exports = {
           value: totalPrice,
         }
       );
-
-      // 추첨제라면 응모 table 업데이트
-      const [[{ isLottery }]] = await db.query(
-        "select isLottery from shows where showid = ?",
-        [showId]
-      );
-
-      if (isLottery) {
-        await db.query(
-          "update apply set payment = 1 where showid = ? and userid = ?",
-          [showId, userId]
-        );
-      }
-
-      console.log(`check receipt`);
-
-      let tx = result.tx;
-      // log 확인
-      for (let i = 0; i < result.logs.length; i++) {
-        let log = result.logs[i];
-        if (log.event == "ISSUE_TICKET") {
-          // We found the event!
-          let param1 = log.args._showId;
-          if (showId == param1) {
-            callback({
-              success: true,
-              data: { tx: tx, bookingId: log.args._bookingId },
-            });
-          }
-          break;
-        }
-      }
-    } catch (e) {
-      console.log(e);
-      callback("발급 오류");
-    }
-  },
-
-  issueBasicTicket: async function (
-    showId,
-    ticketOwner,
-    seats,
-    userId,
-    callback
-  ) {
-    try {
-      const self = this;
-      await Ticketing.setProvider(self.web3.currentProvider);
-      const ticketing = await Ticketing.deployed();
-
       
-      const [[show]] = await db.query(
-        "select ticketPrice, seats from shows where showid = ?",
-        [showId]
-      );
-      
-      let numberOfSeats = seats.length;
-      let totalPrice = web3.toWei(show.ticketPrice) * numberOfSeats;
-      console.log("totalPrice = " + totalPrice);
-
-      const result = await ticketing.issueTicket(
-        showId,
-        ticketOwner,
-        numberOfSeats,
-        userId,
-        {
-          from: ticketOwner,
-          value: totalPrice,
-        }
-      );
-
-      
-      console.log(`check receipt`);
-      
-      let tx = result.tx;
       let bookingId;
-      // log 확인
       for (let i = 0; i < result.logs.length; i++) {
         let log = result.logs[i];
         if (log.event == "ISSUE_TICKET") {
-          // We found the event!
           let param1 = log.args._showId;
           if (showId == param1) {
             bookingId = log.args._bookingId;
@@ -155,37 +82,75 @@ module.exports = {
           break;
         }
       }
+
+      await db.query(
+        "update seat set payment = 1 where userid = ? and showid = ?",
+        [userId, showId]
+      );
+      
+      const [[{seatid}]] = await db.query(
+        "select seatid from apply where showid = ? and bookingId = ?",
+        [showId, bookingId]
+      );
+      
+      await db.query(
+        "insert into seat values(?, ?, ?)",
+        [bookingId, showId, seatid]
+      )
+
     } catch (e) {
       console.log(e);
-      callback({
-        success: false,
-        data:[],
-      });
+      callback("발급 오류");
     }
+  },
 
+  issueBasicTicket: async function (
+    data
+  ) {
+    try {
+      const self = this;
+      await Ticketing.setProvider(self.web3.currentProvider);
+      const ticketing = await Ticketing.deployed();
 
-    // insert seat table 
-    // userid bookingid showid seatid 
-    let isReserved = new Array(row.seats).fill(false); // 좌석수
-    try{
-      for (let i = 0; i < numberOfSeats; i++){
-        isReserved[seats[i]] = true;
-        await db.query("insert into seat values()", []);
+      const {showId, ticketOwner, userId} = data;
+      const numOfReservedSeats = data.seats.length;
+
+      const [[show]] = await db.query(
+        "select ticketPrice, seats from shows where showid = ?",
+        [showId]
+      );
+      
+      let totalPrice = web3.toWei(show.ticketPrice) * numOfReservedSeats;
+      console.log(`number of reserved seats = ${numOfReservedSeats}`);
+      console.log("totalPrice = " + totalPrice);
+
+      const result = await ticketing.issueTicket(
+        showId,
+        ticketOwner,
+        numOfReservedSeats,
+        userId,
+        {
+          from: ticketOwner,
+          value: totalPrice,
+        }
+      );
+
+      let bookingId;
+      for (let i = 0; i < result.logs.length; i++) {
+        let log = result.logs[i];
+        if (log.event == "ISSUE_TICKET") {
+          let param1 = log.args._showId;
+          if (showId == param1) {
+            bookingId = log.args._bookingId;
+          }
+          break;
+        }
       }
-    } catch(err) {
-      console.log(err);
-    }
 
-    let seatData = [];
-    for(let i = 0; i < row.seats; i++) {
-      seatData.push({
-        location : i + 1,
-        state : isReserved[i]
-      })
-    }
-    // 웹소켓 부분 
-
-
+      return bookingId;
+  } catch (e) {
+    console.log(e);
+   }
   },
   
   // @완료
@@ -404,16 +369,23 @@ async function makeData(result) {
   for (let i = 0; i < result.length; i++) {
     try {
       const [[rows]] = await Show.findById(result[i].showId);
-
-      console.log(result);
+      
       rows.bookingId = result[i].bookingId;
       rows.owner = result[i].owner;
       rows.status = result[i].status;
+      rows.numberOfSeats = result[i].numberOfSeats;
+      
+      let [reservedSeat] = await db.query(
+        "select seatid from seat where bookingId = ? and showid = ?",
+        [result[i].bookingId, result[i].showId]
+      );
+      
+      rows.reservedSeat = reservedSeat;
 
       let imgFile = fs.readFileSync(`./image/${rows.showid}.jpg`);
       let encode = Buffer.from(imgFile).toString("base64");
       rows.imgEncode = encode;
-
+      
       array.push(rows);
     } catch (err) {
       console.log(err);
