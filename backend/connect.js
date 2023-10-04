@@ -270,6 +270,7 @@ async function makeData (result) {
 
       rows.bookingId = result[i].bookingId;
       rows.owner = result[i].owner;
+      rows.status = result[i].status;
 
       let imgFile = fs.readFileSync(`./image/${rows.showid}.jpg`);
       let encode = Buffer.from(imgFile).toString("base64");
