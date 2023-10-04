@@ -7,6 +7,8 @@ create table seat(
     foreign key(showid) references shows(showid)
 );
 
+기본키 수정하기 (showid, seatid)
+
 1. 좌석 정보를 확인하는 것 
     bookingId => showid, userid => seat table where
 
