@@ -112,59 +112,78 @@ exports.getSearchedShow = async (req, res) => {
     .catch((err) => console.log(err));
 };
 
-exports.showDetails = (req, res) => {
-  const { userid, showid } = req.body;
-  let sysdate = new Date();
-
-  console.log(`sysdate: ${sysdate}`);
-
-  Show.findById(showid)
-    .then(([data]) => {
-      console.log(data);
-      data = data[0];
-      console.log(data);
-
-      let _applystart = new Date(data.applystart).valueOf();
-      console.log(`_applystart: ${_applystart}`);
-
-      let _applyend = new Date(data.applyend).valueOf();
-      console.log(`_applyend: ${_applyend}`);
-
-      if (sysdate < _applystart) {
+exports.getSearchedShowTx = async (req, res) => {
+  const keyword = req.body.keyword;
+  await Show.findByName_tx(keyword)
+    .then(([shows]) => {
+      if (shows.length === 0) {
         return res.send({
           success: true,
-          code: 111,
-          message: "응모 기간 전",
+          message: "검색 결과 없음",
+          data: shows,
         });
-      }
-
-      if (sysdate > _applyend) {
+      } else {
+        for (let i = 0; i < shows.length; i++) {
+          let imgFile = fs.readFileSync(`./image/${shows[i].showid}_width.jpg`);
+          let encode = Buffer.from(imgFile).toString("base64");
+          shows[i].imgEncode = encode;
+        }
         return res.send({
           success: true,
-          code: 444,
-          message: "응모 기간 종료",
+          message: "공연 정보 있음",
+          data: shows,
         });
       }
-
-      User.isApplied(userid, showid)
-        .then(([rows]) => {
-          if (rows.length === 0) {
-            return res.send({
-              success: true,
-              code: 333,
-              message: "응모 가능",
-            });
-          } else {
-            return res.send({
-              success: true,
-              code: 222,
-              message: "이미 응모함",
-            });
-          }
-        })
-        .catch((err) => console.log(err));
     })
     .catch((err) => console.log(err));
+};
+
+exports.showDetails = async (req, res) => {
+  const { userid, showid } = req.body;
+
+  // 추첨제 - 그대로
+  // 추첨제 아니면 
+
+  try {
+    const [[data]] = await Show.findById(showid);
+    
+    let sysdate = new Date();
+    let _applystart = new Date(data.applystart);
+    let _applyend = new Date(data.applyend);
+
+    if (sysdate < _applystart) {
+      return res.send({ 
+        success: true,
+        code: 111, 
+        message: "응모 기간 전"
+      });
+    }
+
+    if (sysdate > _applyend) {
+      return res.send({ 
+        success: true,
+        code: 444, 
+        message: "응모 기간 종료"
+      });
+    }
+
+    const [rows] = await User.isApplied(userid, showid);
+
+    if (rows.length === 0) {
+      return res.send({ success: true,
+        code: 333,
+        message: "응모 가능"
+      });
+    } else {
+      return res.send({ 
+        success: true, 
+        code: 222, 
+        message: "이미 응모함"
+      });
+    }
+  } catch(err) {
+    console.log(err);
+  }
 };
 
 exports.getQR = async (req, res) => {

@@ -43,7 +43,9 @@ app.post("/payTicket", (req, res) => {
 // @완료
 app.post("/home", (req, res) => {
   console.log("**** POST /home ****");
-  let userAddr = req.body.userAddr;
+
+  const { userAddr } = req.body;
+
   truffle_connect.getMyTicket(userAddr, function (result) {
     res.send(result);
   });
