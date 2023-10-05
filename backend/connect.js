@@ -77,30 +77,34 @@ module.exports = {
         if (log.event == "ISSUE_TICKET") {
           let param1 = log.args._showId;
           if (showId == param1) {
-            bookingId = log.args._bookingId;
+            bookingId = (log.args._bookingId).toString();
           }
           break;
         }
       }
 
       await db.query(
-        "update seat set payment = 1 where userid = ? and showid = ?",
+        "update apply set payment = 1 where userid = ? and showid = ?",
         [userId, showId]
       );
 
       const [[{seatid}]] = await db.query(
-        "select seatid from apply where showid = ? and bookingId = ?",
-        [showId, bookingId]
+        "select seatid from apply where showid = ? and userid = ?",
+        [showId, userId]
       );
+
+      console.log(typeof(seatid));
       
       await db.query(
         "insert into seat values(?, ?, ?)",
         [bookingId, showId, seatid]
       )
 
+      callback({success: true, message : "티켓 결제 완료"});
+
     } catch (e) {
       console.log(e);
-      callback("발급 오류");
+      callback({success : false, message : "티켓 발급 오류"});
     }
   },
 
