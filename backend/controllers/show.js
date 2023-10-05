@@ -5,9 +5,12 @@ const fs = require("fs");
 const Show = require("../models/show");
 const User = require("../models/user");
 
+const truffle_connect = require("../connect.js");
+
 const app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+
 
 exports.showAll = (req, res) => {
   Show.fetchAll()
@@ -34,29 +37,36 @@ exports.showAll = (req, res) => {
     .catch((err) => console.log(err));
 };
 
-exports.showAllTx = (req, res) => {
-  Show.fetchAll_tx()
-    .then(([shows]) => {
-      if (shows.length === 0) {
-        return res.send({
-          success: true,
-          message: "티켓 발급 된 공연 없음",
-          data: shows,
-        });
-      } else {
-        for (let i = 0; i < shows.length; i++) {
-          let imgFile = fs.readFileSync(`./image/${shows[i].showid}_width.jpg`);
-          let encode = Buffer.from(imgFile).toString("base64");
-          shows[i].imgEncode = encode;
-        }
-        return res.send({
-          success: true,
-          message: "공연 정보 있음",
-          data: shows,
-        });
+exports.showAllTx = async (req, res) => {
+    const [shows] = await Show.fetchAll_tx();
+    
+    if (shows.length === 0) {
+      return res.send({
+        success: true,
+        message: "거래 티켓이 등록된 공연 없음",
+        data: shows,
+      });
+    }
+
+    let numberOfResellTicket, imgFile, encode;
+    let data = []
+    for (let i = 0; i < shows.length; i++){
+      numberOfResellTicket = await truffle_connect.getNumberOfResellTicket(shows[i].showid);
+      console.log(`showid : ${shows[i].showid}, numberOfResellTicket : ${numberOfResellTicket}`);
+
+      if (numberOfResellTicket > 0) {
+        imgFile = fs.readFileSync(`./image/${shows[i].showid}_width.jpg`);
+        encode = Buffer.from(imgFile).toString("base64");
+        shows[i].imgEncode = encode;
+        data.push(shows[i]);
       }
+    }
+
+    return res.send({
+      success: true,
+      message: "거래 티켓 등록된 공연 정보",
+      data: data
     })
-    .catch((err) => console.log(err));
 };
 
 exports.getTypeShow = async (req, res) => {
@@ -140,9 +150,6 @@ exports.getSearchedShowTx = async (req, res) => {
 
 exports.showDetails = async (req, res) => {
   const { userid, showid } = req.body;
-
-  // 추첨제 - 그대로
-  // 추첨제 아니면 
 
   try {
     const [[data]] = await Show.findById(showid);
