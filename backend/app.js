@@ -8,6 +8,7 @@ const truffle_connect = require("./connect.js");
 const bodyParser = require("body-parser");
 const schedule = require("node-schedule");
 const webSocket = require("./util/socket");
+const reserve = require("./reserve.js");
 
 const userRouter = require("./routes/user.js");
 const showRouter = require("./routes/show.js");
@@ -67,7 +68,6 @@ app.post("/payBasicTicket", (req, res) => {
   );
 });
 
-
 app.post("/createShow", (req, res) => {
   console.log("**** POST /createShow ****");
   let showOwner = req.body.showOwner;
@@ -78,6 +78,13 @@ app.post("/createShow", (req, res) => {
   });
 });
 
+app.post("/reserve", (req, res) => {
+  const { showId } = req.body;
+  // 좌석 정보 쭉 전달
+  reserve.getReservedData(showId, function (result) {
+    res.send({ success: true, data: result });
+  });
+});
 
 const server = app.listen(port, () => {
   // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
