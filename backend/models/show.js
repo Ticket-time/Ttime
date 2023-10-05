@@ -37,6 +37,14 @@ module.exports = class Show {
     );
   }
 
+  static findByName_tx(name) {
+    let query = "%" + name + "%";
+    return db.execute(
+      `SELECT * FROM shows WHERE showname LIKE ? and showid IN (SELECT showid FROM shows WHERE paystart < sysdate() and showdate > sysdate())`,
+      [query]
+    );
+  }
+
   // 거래 탭에서 공연 불러오기 (티켓 발급 진행된 공연 대상)
   static fetchAll_tx() {
     return db.execute(
@@ -44,11 +52,19 @@ module.exports = class Show {
     );
   }
 
-  static findByName_tx(name) {
-    let query = "%" + name + "%";
+  static findPayendByDate() {
+    // 결제 탈락 시간: PAYEND
     return db.execute(
-      `SELECT * FROM shows WHERE showname LIKE ? and showid IN (SELECT showid FROM shows WHERE paystart < sysdate() and showdate > sysdate())`,
-      [query]
+      "SELECT showid FROM shows WHERE curdate() = DATE(payend)"
+    );
+  }
+
+  // 당첨자 미결제건 조사
+  static findUnpayment(id) {
+    return db.execute(
+      // 당첨자니까 isLottery 경우로 생각해야 함
+      "SELECT userid FROM apply WHERE payment = 0 and isWin = 1 and showid = ?",
+      [id]
     );
   }
 };

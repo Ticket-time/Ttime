@@ -24,13 +24,6 @@ app.use("/shows", showRouter); // 전체 공연
 app.use(authRouter);
 app.use("/tx", txRouter);
 
-// const rand = require("./controllers/random.js");
-// // @ test
-// app.post("/random", (req, res) => {
-//   console.log("random");
-
-// })
-
 // @완료
 app.post("/payTicket", (req, res) => {
   console.log("**** POST /payTicket ****");
@@ -90,7 +83,7 @@ app.listen(port, () => {
     console.log("app.js파일에서 출력" + new Date());
     search.deleteWord();
     setInterval.callRandomFunc();
-
+    setInterval.callNonpayableTicket();
     // rank
   });
 
