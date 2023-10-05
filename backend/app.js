@@ -78,10 +78,10 @@ app.post("/createShow", (req, res) => {
   });
 });
 
-app.post("/reserve", (req, res) => {
+app.post("/seatInfo", (req, res) => {
   const { showId } = req.body;
   // 좌석 정보 쭉 전달
-  reserve.getReservedData(showId, function (result) {
+  reserve.getSeatInfo(showId, function (result) {
     res.send({ success: true, data: result });
   });
 });

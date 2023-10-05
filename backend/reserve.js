@@ -1,7 +1,7 @@
 const db = require("./util/database");
 const Seat = require("./models/seat");
 
-exports.getReservedData = async function (showId, callback) {
+exports.getSeatInfo = async function (showId, callback) {
   const [[{ seats }]] = await db.query(
     "select seats from shows where showid = ?",
     [showId]
