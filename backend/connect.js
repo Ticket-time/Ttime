@@ -17,25 +17,17 @@ const RefundRatio = {
 let manager = "0x246d89578e515F63DeCC1CEa8bD1df571aE3a705";
 
 module.exports = {
-  test: function(data) {
-    console.log("this is truffle connect");
-    console.log(data);
-  }, 
-  createShow: async function (showOwner, ticketPriceEth, callback) {
-    try {
-      const self = this;
-      const ticketPriceWei = web3.toWei(ticketPriceEth, "ether");
-      console.log(ticketPriceWei);
-      await Ticketing.setProvider(self.web3.currentProvider);
-      const ticketing = await Ticketing.deployed();
-      const value = await ticketing.createShow(ticketPriceWei, {
-        from: showOwner,
-      });
-      callback(value.receipt.status);
-    } catch (e) {
-      console.log(e);
-      callback("ERROR 404");
-    }
+
+  getNumberOfResellTicket : async function (showId) {
+    const self = this;
+    await Ticketing.setProvider(self.web3.currentProvider);
+    const ticketing = await Ticketing.deployed();
+
+    // showid
+    let result = await ticketing.getNumberOfResellTicket(showId);
+    result = result.toString();
+
+    return result;
   },
 
   // issueLotteryTicket

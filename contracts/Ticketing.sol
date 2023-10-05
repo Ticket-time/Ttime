@@ -34,6 +34,12 @@ contract Ticketing {
         uint indexForSellingBookingIdList; // 쓰읍;;;시발 
     }
 
+    function getNumberOfResellTicket(uint _showid) public view returns(uint) {
+        uint result = sellingBookingIdList[_showid].length;
+
+        return result;
+    }
+
     function getMyTicket(address payable userAddr) public view returns(Ticket[] memory){
         uint length = bookingIdList[userAddr].length;
         Ticket[] memory myTickets = new Ticket[](length);

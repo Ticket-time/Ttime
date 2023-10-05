@@ -53,31 +53,6 @@ app.post("/home", (req, res) => {
   });
 });
 
-app.post("/payBasicTicket", (req, res) => {
-  console.log("**** POST /pay Basic Ticket ****");
-  const { showId, userId, ticketOwner, seats } = req.body;
-
-  truffle_connect.issueBasicTicket(
-    showId,
-    ticketOwner,
-    seats,
-    userId,
-    function (result) {
-      res.send(result);
-    }
-  );
-});
-
-app.post("/createShow", (req, res) => {
-  console.log("**** POST /createShow ****");
-  let showOwner = req.body.showOwner;
-  let ticketPrice = parseFloat(req.body.ticketPrice);
-  // let ticketPrice = req.body.ticketPrice;
-  truffle_connect.createShow(showOwner, ticketPrice, function (result) {
-    res.send({ success: true, message: result });
-  });
-});
-
 app.post("/seatInfo", (req, res) => {
   const { showId } = req.body;
   // 좌석 정보 쭉 전달
@@ -116,3 +91,4 @@ const server = app.listen(port, () => {
 });
 
 webSocket(server);
+
