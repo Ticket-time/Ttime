@@ -12,11 +12,11 @@ exports.getSeatInfo = async function (showId, callback) {
     "select seatid from seat where showid = ?",
     [showId]
   );
-  let isReserved = new Array(seats).fill(false); // 좌석수
+  let isReserved = new Array(seats).fill(333); // 좌석수
 
   for (let i = 0; i < reservedSeats.length; i++) {
     seatId = reservedSeats[i].seatid;
-    isReserved[seatId - 1] = true;
+    isReserved[seatId - 1] = 111; // status 값
   }
 
   let seatData = [];
