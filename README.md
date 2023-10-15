@@ -7,9 +7,9 @@
 ![image](https://github.com/Ticket-time/Ttime/assets/88098817/1724f57f-0657-47fd-8a52-73bf2b7a0e90)
 
 # 시현 영상 
-- [일반 예매](https://drive.google.com/file/d/1p-1Hh2IUFpmv7aJ0WHeYXBvV2Zpe3Oc_/view?usp=sharing)
-- [응모, 결제](https://drive.google.com/file/d/1e5LehTzVrxcNDLT4eI3g4uz35MBmzdJV/view?usp=sharing)
-- [양도](https://drive.google.com/file/d/1uPXl-z8VhY0c5I5cf-4ZXvdpj5VoZY1b/view?usp=sharing)
+- [일반 예매](https://drive.google.com/file/d/1F4wLuOqKEr4-I3qmg_LLP4dxf7tJiDdX/view?usp=sharing)
+- [응모, 결제](https://drive.google.com/file/d/1am7JJRWdAxGBIVWlorioOtFMNZTyppi1/view?usp=sharing)
+- [양도](https://drive.google.com/file/d/1h5i0qbTuQjbm_nWK6OXA5yVDiaur5dyX/view?usp=sharing)
 
 # 주요 기능
 
