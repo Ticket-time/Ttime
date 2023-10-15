@@ -1,10 +1,10 @@
 # Ttime
 시스템 종합 설계 프로젝트 - 티켓 거래 및 관리 서비스
 <br>
-![image](https://github.com/Ticket-time/Ttime/assets/88098817/1ad3d19e-7c4f-4412-b095-9aacf16f5fe6)
+<img src="https://github.com/Ticket-time/Ttime/assets/88098817/06fc07d9-b04a-4d55-93cf-6048f768eb18"></img>
 
 # 사용 기술
-![image](https://github.com/Ticket-time/Ttime/assets/88098817/1724f57f-0657-47fd-8a52-73bf2b7a0e90)
+<img src="https://github.com/Ticket-time/Ttime/assets/88098817/239dd597-c9ae-4390-a3f3-632ab1f55d0f"></img>
 
 # 시현 영상 
 - [일반 예매](https://drive.google.com/file/d/1F4wLuOqKEr4-I3qmg_LLP4dxf7tJiDdX/view?usp=sharing)
@@ -14,19 +14,19 @@
 # 주요 기능
 
 #### 홈
-![image](https://github.com/Ticket-time/Ttime/assets/88098817/a2a80f29-85d8-4e29-9473-927a0c67d9a2)
+<img src="https://github.com/Ticket-time/Ttime/assets/88098817/e00a06bf-68da-4d17-a2a0-5afc5688f7af"></img>
 
 #### 예매
-![image](https://github.com/Ticket-time/Ttime/assets/88098817/30aa524c-597d-45d4-bd2b-1e9bed7cef0d)
+<img src="https://github.com/Ticket-time/Ttime/assets/88098817/c324e245-c9fe-432a-9506-a0e48c3fef52"></img>
 
 - 일반 예매
-<br> ![image](https://github.com/Ticket-time/Ttime/assets/88098817/1bd2b940-5a29-4a52-b865-7d9dcad32e21)
+<br> <img src="https://github.com/Ticket-time/Ttime/assets/88098817/3c362492-a57f-4858-9d15-58686c870ee1"></img>
 
 - 추첨제
-<br> ![image](https://github.com/Ticket-time/Ttime/assets/88098817/7cce0507-4520-4624-8493-2f5a54d6b7cb)
-<br> ![image](https://github.com/Ticket-time/Ttime/assets/88098817/f53bd099-b1ba-4dd2-a094-6e7cd7c2d747)
+<br> <img src="https://github.com/Ticket-time/Ttime/assets/88098817/974a671f-96c8-48f5-af6a-9efa5da2388f"></img>
+<br> <img src="https://github.com/Ticket-time/Ttime/assets/88098817/310f4389-e1ec-4abe-b94b-3e5c4c42b687"></img>
 
 #### 거래
-![image](https://github.com/Ticket-time/Ttime/assets/88098817/e83ae391-1501-48d4-bff6-c79e9ee338f4)
+<img src="https://github.com/Ticket-time/Ttime/assets/88098817/3778e073-9a25-459b-97f0-5eeb4c727493"> </img>
 
 
